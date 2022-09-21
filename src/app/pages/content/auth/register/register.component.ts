@@ -6,7 +6,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { CountryISO, PhoneNumberFormat, SearchCountryField } from 'ngx-intl-tel-input';
 import { ToastrService } from 'ngx-toastr';
 import { AuthenticationService } from 'src/app/services/authentication.service';
-import { HomeService } from 'src/app/services/home.service';
+import { UserService } from 'src/app/services/user.service';
 import { environment } from 'src/environments/environment';
 
 @Component({
@@ -23,13 +23,15 @@ export class RegisterComponent implements OnInit {
   currentLang: any;
   currentLanguage: any;
   loading!:boolean;
+  actionLoading!:boolean;
   constructor(
     private _TranslateService:TranslateService,
     private _Title:Title,
     private _AuthenticationService:AuthenticationService,
     private _Router:Router,
     private _ToastrService:ToastrService,
-    private _Renderer2:Renderer2
+    private _Renderer2:Renderer2,
+    private _UserService:UserService
   ) {
     if (localStorage.getItem('currentUserToken') !== null) {
       this._Router.navigate(['/'])
@@ -65,7 +67,7 @@ export class RegisterComponent implements OnInit {
     registerForm: FormGroup
     ){
 
-    this._AuthenticationService.register(
+    this._UserService.register(
       registerForm.value.name,
       registerForm.value.phone.number,
       registerForm.value.email,
@@ -75,49 +77,53 @@ export class RegisterComponent implements OnInit {
       registerForm.value.degree_needed
       ).subscribe(
       (response) => {
+        this.actionLoading = true;
         console.log(response);
         if(response.message){
           if(this.currentLanguage === 'ar'){
             this._ToastrService.success(`${response.ar_message}` , 'تسجيل صحيح' , {
-              timeOut: 4000 , positionClass: 'toast-bottom-left'
+              timeOut: 4000 , positionClass: 'toast-bottom-center'
             })
 
           }
           else{
             this._ToastrService.success(`${response.message}` , 'You register successfully' , {
-              timeOut: 4000 , positionClass: 'toast-bottom-left'
+              timeOut: 4000 , positionClass: 'toast-bottom-center'
             })
           }
           this._TranslateService.onLangChange.subscribe(
             (language:any) => {
               if(language.lang === 'ar'){
                 this._ToastrService.success(`${response.ar_message}` , 'تسجيل صحيح' , {
-                  timeOut: 4000 , positionClass: 'toast-bottom-left'
+                  timeOut: 4000 , positionClass: 'toast-bottom-center'
                 })
 
               }
               else{
                 this._ToastrService.success(`${response.message}` , 'You register successfully' , {
-                  timeOut: 4000 , positionClass: 'toast-bottom-left'
+                  timeOut: 4000 , positionClass: 'toast-bottom-center'
                 })
               }
             }
 
           )
+          this.actionLoading = false;
+
         }
       }, error => {
+        this.actionLoading = true;
 
         if(error.error.errors.email){
           if(this.currentLanguage === 'ar'){
 
               this._ToastrService.error(`البريد الإلكتروني تم أخذه.` , 'حاول مجددا' , {
-                timeOut: 4000 , positionClass: 'toast-bottom-left'
+                timeOut: 4000 , positionClass: 'toast-bottom-center'
               })
           }else{
 
 
               this._ToastrService.error(`${error.error.errors.email[0]}` , 'Please try again' , {
-                timeOut: 4000 , positionClass: 'toast-bottom-left'
+                timeOut: 4000 , positionClass: 'toast-bottom-center'
               })
             }
             this._TranslateService.onLangChange.subscribe(
@@ -125,30 +131,32 @@ export class RegisterComponent implements OnInit {
               if(language.lang === 'ar'){
 
                 this._ToastrService.error(`البريد الإلكتروني تم أخذه.` , 'حاول مجددا' , {
-                  timeOut: 4000 , positionClass: 'toast-bottom-left'
+                  timeOut: 4000 , positionClass: 'toast-bottom-center'
                 })
             }else{
 
 
                 this._ToastrService.error(`${error.error.errors.email[0]}` , 'Please try again' , {
-                  timeOut: 4000 , positionClass: 'toast-bottom-left'
+                  timeOut: 4000 , positionClass: 'toast-bottom-center'
                 })
               }
             }
 
             )
+            this.actionLoading = false
+
         }else if(error.error.errors.password){
           if(this.currentLanguage === 'ar'){
 
               this._ToastrService.error(`كلمة السر لا تشبه تأكيد كلمة السر` , 'حاول مجددا' , {
-                timeOut: 4000 , positionClass: 'toast-bottom-left'
+                timeOut: 4000 , positionClass: 'toast-bottom-center'
               })
           }else{
 
 
 
               this._ToastrService.error(`${error.error.errors.password[0]}` , 'Please try again' , {
-                timeOut: 4000 , positionClass: 'toast-bottom-left'
+                timeOut: 4000 , positionClass: 'toast-bottom-center'
               })
             }
             this._TranslateService.onLangChange.subscribe(
@@ -156,19 +164,21 @@ export class RegisterComponent implements OnInit {
               if(language.lang === 'ar'){
 
                 this._ToastrService.error(`كلمة السر لا تشبه تأكيد كلمة السر` , 'حاول مجددا' , {
-                  timeOut: 4000 , positionClass: 'toast-bottom-left'
+                  timeOut: 4000 , positionClass: 'toast-bottom-center'
                 })
             }else{
 
 
 
                 this._ToastrService.error(`${error.error.errors.password[0]}` , 'Please try again' , {
-                  timeOut: 4000 , positionClass: 'toast-bottom-left'
+                  timeOut: 4000 , positionClass: 'toast-bottom-center'
                 })
               }
             }
 
             )
+            this.actionLoading = false
+
         }
       }
     )

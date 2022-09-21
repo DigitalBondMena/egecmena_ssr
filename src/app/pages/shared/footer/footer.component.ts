@@ -1,8 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit , Renderer2 } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
-import { of } from 'rxjs';
 import { HomeService } from 'src/app/services/home.service';
 
 @Component({
@@ -15,6 +14,8 @@ export class FooterComponent implements OnInit {
   universities: any[] = [];
   faculties: any[] = [];
   arrayOfAll: any[] = [];
+  departments: any[] = [];
+  facultyUniversity: any[] = [];
   currentLanguage: any;
   selectedValue?: string;
   selectedOption: any;
@@ -22,18 +23,38 @@ export class FooterComponent implements OnInit {
   constructor(
     private _HomeService: HomeService,
     private _TranslateService: TranslateService,
-    private _Router: Router
+    private _Router: Router,
+    private _Renderer2:Renderer2
   ) {}
 
   onSelect(event: TypeaheadMatch): void {
     this.selectedOption = event.item;
-    console.log(event);
+    console.log(event.item);
     if (event.item.en_about_the_destination) {
-      this._Router.navigate(['/destination/', event.item.id]);
-    } else if (event.item.special_id) {
-      this._Router.navigate([`/faculty/${event.item.faculty_id}/${event.item.university_id}`]);
+      if(localStorage.getItem("currentLanguage") == 'en'){
+
+        this._Router.navigate(['/destination/', event.item.en_slug]);
+        }else{
+          this._Router.navigate(['/destination/', event.item.ar_slug]);
+
+        }
+      } else if (event.item.special_id) {
+      // console.log(event.item.university[0].en_slug , event.item);
+      if(localStorage.getItem("currentLanguage") == 'en'){
+        this._Router.navigate([`/faculty/${event.item.en_slug}/${event.item.university[0].en_slug}`]);
+      }else{
+        this._Router.navigate([`/faculty/${event.item.ar_slug}/${event.item.university[0].ar_slug}`]);
+
+      }
     } else if (event.item.en_about_the_university) {
-      this._Router.navigate(['/university/', event.item.id]);
+      if(localStorage.getItem("currentLanguage") == 'en'){
+        this._Router.navigate([`/university/${ event.item.destination[0].en_slug}`, event.item.en_slug]);
+      }else{
+        this._Router.navigate([`/university/${ event.item.destination[0].ar_slug}`, event.item.ar_slug]);
+
+      }
+    }else if(event.item.en_department_mission){
+      this._Router.navigate([`/department/${event.item.pivot?.faculty_major_university_id}/${event.item.id}`])
     }
   }
   preventEnglish(event:any){
@@ -59,18 +80,49 @@ export class FooterComponent implements OnInit {
     }
   }
   allData() {
+    let footerSearchInput = document.querySelector('.footerSearchInput');
+    this._Renderer2.setAttribute(footerSearchInput ,  'disabled' , 'disabled')
     this._HomeService.getHomeData().subscribe((response) => {
       this.faculties = response.faculty;
-      const facultyArray = this.faculties.map(v => ({ ...v, ...response.facultyUniversity.find((sp:any) => sp.university_id === v.id) }));
-
       this.universities = response.university;
       this.destinations = response.destinations;
+      this.universities.forEach(
+        (destinations:any) => {
+          return destinations.destination = this.destinations.filter(
+            (destinationResponse) => {
+              return destinationResponse.id == destinations.destination_id;
+            }
+          );
+        }
+      )
+      response.Department.forEach((element:any) => {
+        this.facultyUniversity.push(element.faculty_university);
+        element.departments.forEach((departments:any) => {
+          this.departments.push(departments)
+        });
+
+      });
+      const facultyArray = this.faculties.map(v => ({ ...v, ...this.facultyUniversity.find((sp) => sp.faculty_id === v.id) }));
+      facultyArray.forEach(
+        (response) => {
+          return response.university = this.universities.filter(
+            (universityResponse) => {
+              return universityResponse.id == response.university_id;
+            }
+          );
+        }
+      )
+
+
 
       this.arrayOfAll = this.universities.concat(
         this.universities,
         this.destinations,
-        facultyArray
+        facultyArray,
+        this.departments
       );
+      this._Renderer2.removeAttribute(footerSearchInput , 'disabled')
+
     });
   }
   translateFunction() {

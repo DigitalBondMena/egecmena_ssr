@@ -1,17 +1,16 @@
 import { Component, OnInit, Renderer2 } from '@angular/core';
-import { Title, Meta } from '@angular/platform-browser';
+import { Meta, Title } from '@angular/platform-browser';
 import { TranslateService } from '@ngx-translate/core';
 import { OwlOptions } from 'ngx-owl-carousel-o';
 import { AboutService } from 'src/app/services/about.service';
 import { environment } from 'src/environments/environment';
 
 @Component({
-  selector: 'app-about',
-  templateUrl: './about.component.html',
-  styleUrls: ['./about.component.scss']
+  selector: 'app-about-us',
+  templateUrl: './about-us.component.html',
+  styleUrls: ['./about-us.component.scss']
 })
 export class AboutComponent implements OnInit {
-
   loading: boolean = false;
   aboutUs!: any ;
   currentLanguage: any;
@@ -108,4 +107,5 @@ export class AboutComponent implements OnInit {
 
     }
   }
+
 }

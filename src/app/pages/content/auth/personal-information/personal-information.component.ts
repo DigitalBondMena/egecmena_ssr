@@ -4,13 +4,16 @@ import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import { AdmissionFormComponent } from 'src/app/pages/shared/admission-form/admission-form.component';
 import { AuthenticationService } from 'src/app/services/authentication.service';
+import { UserService } from 'src/app/services/user.service';
 import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-personal-information',
   templateUrl: './personal-information.component.html',
   styleUrls: ['./personal-information.component.scss'],
+  providers:[AdmissionFormComponent]
 })
 export class PersonalInformationComponent implements OnInit {
   currentLanguage: any;
@@ -24,10 +27,11 @@ export class PersonalInformationComponent implements OnInit {
   constructor(
     private _TranslateService: TranslateService,
     private _Title: Title,
-    private _Router: Router,
     private _AuthenticationService: AuthenticationService,
     private _ToastrService:ToastrService,
-    private _Renderer2:Renderer2
+    private _AdmissionFormComponent:AdmissionFormComponent ,
+    private _Renderer2:Renderer2,
+    private _UserService:UserService
   ) {}
   loader(){
     let body = document.querySelector('body');
@@ -70,24 +74,22 @@ export class PersonalInformationComponent implements OnInit {
     'user_id': new FormControl(''),
   });
   onSubmitPersonalInforrmation(personalInforrmation: FormGroup) {
-    console.log(personalInforrmation.value);
     this.actionLoading = true;
-    this._AuthenticationService
+    this._UserService
       .savePersonalInformation(personalInforrmation.value)
       .subscribe((response) => {
-        console.log(response);
         if(response.error === 'Something went wrong, please try again later!'){
           if (this.currentLanguage === 'ar') {
 
             this._ToastrService.error(`${response.ar_error}`,`هناك شئ خاطئ، يرجى المحاولة فى وقت لاحق!` , {
-              timeOut: 4000 , positionClass: 'toast-bottom-left'
+              timeOut: 4000 , positionClass: 'toast-bottom-center'
 
             })
 
           } else {
 
             this._ToastrService.error(`${response.error}`,`Something went wrong, please try again later!` , {
-              timeOut: 4000 , positionClass: 'toast-bottom-left'
+              timeOut: 4000 , positionClass: 'toast-bottom-center'
 
             })
 
@@ -97,14 +99,14 @@ export class PersonalInformationComponent implements OnInit {
               if (language.lang === 'ar') {
 
                 this._ToastrService.error(`${response.ar_error}`,`هناك شئ خاطئ، يرجى المحاولة فى وقت لاحق!` , {
-                  timeOut: 4000 , positionClass: 'toast-bottom-left'
+                  timeOut: 4000 , positionClass: 'toast-bottom-center'
 
                 })
 
               } else if(language.lang === 'en') {
 
                 this._ToastrService.error(`${response.error}`,`Something went wrong, please try again later!` , {
-                  timeOut: 4000 , positionClass: 'toast-bottom-left'
+                  timeOut: 4000 , positionClass: 'toast-bottom-center'
 
                 })
 
@@ -115,20 +117,19 @@ export class PersonalInformationComponent implements OnInit {
 
         }
         if(response.success){
+          this.showPersonalInformation();
+          this._AdmissionFormComponent.ngOnInit();
           if (this.currentLanguage === 'ar') {
 
             this._ToastrService.success(`${response.ar_success}`,`لقد تم حفظ بياناتك الشخصية` , {
-              timeOut: 4000 , positionClass: 'toast-bottom-left'
+              timeOut: 4000 , positionClass: 'toast-bottom-center'
 
             })
-            setTimeout(() => {
 
-              this._Router.navigate(['/academic-information'])
-            }, 1000);
           } else {
 
             this._ToastrService.success(`${response.ar_success}`,`Your personal information had saved` , {
-              timeOut: 4000 , positionClass: 'toast-bottom-left'
+              timeOut: 4000 , positionClass: 'toast-bottom-center'
 
             })
 
@@ -142,7 +143,7 @@ export class PersonalInformationComponent implements OnInit {
     this.loading = true;
     if (localStorage.getItem('currentUserToken') !== null) {
 
-    this._AuthenticationService
+    this._UserService
       .getPersonalInformation(this.userArray.id)
       .subscribe((response) => {
         console.log(response);
@@ -160,7 +161,12 @@ export class PersonalInformationComponent implements OnInit {
     } else if (this.currentLanguage == 'ar') {
       this._Title.setTitle(`${environment.title}المعلومات الشخصية`);
     }
-    this._TranslateService.onLangChange.subscribe(() => {
+    this._TranslateService.onLangChange.subscribe((language) => {
+      if (language.lang == 'en') {
+        this._Title.setTitle(`${environment.title}Personal Information`);
+      } else if (language.lang == 'ar') {
+        this._Title.setTitle(`${environment.title}المعلومات الشخصية`);
+      }
       this.currentLanguage = this._TranslateService.currentLang;
     });
   }

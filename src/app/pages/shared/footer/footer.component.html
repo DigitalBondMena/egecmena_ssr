@@ -128,7 +128,6 @@
       </div>
       <div class="row justify-content-between">
         <div class="col-lg-4">
-          <!-- <form action=""> -->
 
             <div class="footer__search input-group p-relative mb-3">
               <div class="input-group-prepend">
@@ -139,6 +138,7 @@
 
               <input [(ngModel)]="selectedValue"
               [typeahead]="arrayOfAll"
+              [placeholder]="currentLanguage === 'ar' ? 'تبحث عن جامعة، كلية، أو أي شئ أخر؟' : 'Looking for a university, faculty, or anything else?'"
               [typeaheadOptionField]="currentLanguage === 'ar' ?  'ar_name' : 'en_name'"
               (keypress)="preventEnglish($event)"
               (typeaheadOnSelect)="onSelect($event)"
@@ -151,7 +151,6 @@
               </div>
             -->
             </div>
-          <!-- </form> -->
         </div>
         <div class="col-lg-3">
           <div class="social_links">
@@ -169,9 +168,9 @@
        <div class="row">
           <div class="col-xxl-12">
              <div class="footer__copyright footer__copyright-2 text-center">
-                <p>{{ currentLanguage === 'ar' ? 'جميع الحقوق محفوظة لدي' :  'All rights reserved by' }}<a target="_blank" href="https://digitalbondmena.com/">
-                  <img height="40px" src="assets/theme/img/logo/Digitalbond.png" alt="">
-                </a> © 2022
+                <p>{{ currentLanguage === 'ar' ? 'جميع الحقوق محفوظة لدي' :  'All rights reserved by' }}<a class="mx-2" target="_blank" href="https://digitalbondmena.com/">
+                  <img height="40px" src="assets/theme/img/logo/digitalbond_white.png" alt="">
+                </a>© 2022
 
                   </p>
              </div>

@@ -2,9 +2,10 @@ import { Component, OnInit, Renderer2 } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
 import { TranslateService } from '@ngx-translate/core';
+import { ToastrService } from 'ngx-toastr';
 import { HomeService } from 'src/app/services/home.service';
 import { environment } from 'src/environments/environment';
-import { ToastrService } from 'ngx-toastr';
+
 @Component({
   selector: 'app-contact-us',
   templateUrl: './contact-us.component.html',
@@ -66,7 +67,8 @@ export class ContactUsComponent implements OnInit {
               `${response.ar_success}`,
               'سنتصل بك في اقرب وقت',
               {
-                timeOut: 4000 , positionClass: 'toast-bottom-left'
+                timeOut: 4000 , positionClass: 'toast-bottom-center'
+
               }
             )
           }else{
@@ -74,9 +76,9 @@ export class ContactUsComponent implements OnInit {
               `${response.success}`,
               'We will get in touch with you soon',
               {
-                timeOut: 4000 , positionClass: 'toast-bottom-left'
+                timeOut: 4000 , positionClass: 'toast-bottom-center'
               }
-            )
+              )
 
           }
           contactForm.reset()

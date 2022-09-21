@@ -2,6 +2,8 @@ import { Component, OnInit, Renderer2 } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { AuthenticationService } from 'src/app/services/authentication.service';
 import { HomeService } from 'src/app/services/home.service';
+import { StudyService } from 'src/app/services/study.service';
+import { UserService } from 'src/app/services/user.service';
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
@@ -23,8 +25,8 @@ export class NavbarComponent implements OnInit {
     private _Renderer2:Renderer2,
     public _TranslateService:TranslateService,
     private _AuthenticationService:AuthenticationService,
-    private _HomeService:HomeService,
-    // private _:
+    private _StudyService:StudyService,
+    private _UserService:UserService
   ) { }
 
   closeSidebar(){
@@ -123,7 +125,7 @@ export class NavbarComponent implements OnInit {
 
 
   showDestination(){
-    this._HomeService.getHomeData().subscribe(
+    this._StudyService.getDestinations().subscribe(
       (response) => {
         this.destinations = response.destinations
       }
@@ -141,24 +143,27 @@ export class NavbarComponent implements OnInit {
         this.userArray = JSON.parse(
           localStorage.getItem('currentUserArray') || '{}'
         );
-          this._AuthenticationService
+          this._UserService
             .getPersonalInformation(this.userArray.id)
             .subscribe((response) => {
-              console.log(response);
               this.userPersonalInfo = response.userPersonalInfo;
               if(response.userPersonalInfo?.full_name == null){
                 this.AcademicData = false
-                console.log("false");
               }else{
                 this.AcademicData = true
-                console.log("true");
-                this._AuthenticationService.getPaperInfo(this.userArray.id).subscribe(
+                this._UserService.getAcademicInformation(this.userArray.id).subscribe(
                   (response) => {
-                    console.log(response);
-                    console.log(response.message);
+                    if(response.academicInfo?.degree_name != null){
+                      this._UserService.getPaperInfo(this.userArray.id).subscribe(
+                        (response) => {
+                          console.log(response);
+                          console.log(response.message);
 
-                    this.paperStatus = response;
+                          this.paperStatus = response;
 
+                        }
+                      )
+                    }
                   }
                 )
               }

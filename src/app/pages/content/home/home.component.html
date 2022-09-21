@@ -1,7 +1,7 @@
 
   <app-home-loader *ngIf="loading"
   ></app-home-loader>
-
+  <app-action-loader *ngIf="actionLoading"></app-action-loader>
 <!-- hero area start -->
 <section class="hero__area hero__height hero__height-2 d-flex align-items-center white-bg-3 fix">
 
@@ -60,7 +60,21 @@
               {{'home_cover_text2' | translate}}
 
             </p>
+            <div class="home__search input-group p-relative mb-3">
 
+
+              <input
+              [(ngModel)]="selectedValue"
+              [typeahead]="arrayOfAll"
+              [placeholder]="currentLanguage === 'ar' ? 'تبحث عن جامعة، كلية، أو أي شئ أخر؟' : 'Looking for a university, faculty, or anything else?'"
+              [typeaheadOptionField]="currentLanguage === 'ar' ?  'ar_name' : 'en_name'"
+              (typeaheadOnSelect)="onSelect($event)"
+              (keypress)="preventEnglish($event)"
+              (typeaheadOnPreview)="onPreview($event)"
+
+              class="form-control">
+
+            </div>
           </div>
           <div class="hero__shape">
             <img class="hero-1-circle" src="assets/theme/img/icon/book.png" alt="">
@@ -187,94 +201,113 @@
     </div>
     <form [formGroup]="admissionForm" (ngSubmit)="onSubmitSearch(admissionForm)" >
       <div class="row wow animate__slideInRight animate__animated justify-content-between align-items-end">
-        <div class="col-lg-2 col-md-3">
+        <div class="col-md-2">
           <div class="form-group">
             <label for="" >
               {{ currentLanguage === 'ar' ? 'بلد' :  'Country' }}
               </label>
-            <select  id="my-select" formControlName="destination" (change)="onChangeDestination($event)"  class="form-control" name="">
+            <select  id="my-select" formControlName="destination" (change)="onChangeDestination($event , currentLanguage === 'ar' ? 'ar' : 'en')"  class="form-control" name="">
               <option value="">
                 {{ currentLanguage === 'ar' ? 'أختار بلد' :  'Choose Country' }}
               </option>
-              <option  value="{{destination.en_slug}}" *ngFor="let destination of destinations">
+              <option  value="{{currentLanguage === 'ar' ? destination.ar_slug : destination.en_slug}}" *ngFor="let destination of destinations">
                 {{currentLanguage === 'ar' ? destination.ar_name : destination.en_name}}
               </option>
             </select>
           </div>
         </div>
-        <div class="col-lg-2 col-md-3">
+        <div class="col-md-2">
           <div class="form-group">
             <label for="">
 
               {{ currentLanguage === 'ar' ? 'الجامعة' :  'University' }}
 
             </label>
-            <select  id="my-select" formControlName="university" (change)="onChangeUniversity($event)" placeholder="اختر الجامعة" class="form-control" name="">
+            <select  id="my-select" formControlName="university" (change)="onChangeUniversity($event ,  currentLanguage === 'ar' ? 'ar' : 'en')" placeholder="اختر الجامعة" class="form-control" name="">
               <option *ngIf="universityChoice" value="">
 
                 {{ currentLanguage === 'ar' ? 'اختر الجامعة' :  'Choose university' }}
 
               </option>
-              <option value="{{university.id}}"  *ngFor="let university of changeUniversities">
-                {{currentLanguage === 'ar' ? university.ar_name : university.en_name}}
-              </option>
+              <ng-container *ngFor="let universitySlug of changeUniversities?.slug; let index = index">
+                <ng-container *ngFor="let universityName of changeUniversities?.name; let i = index" >
+
+                <option value="{{universitySlug}}" *ngIf="index  == i">
+                  {{  universityName }}
+                </option>
+                <input type="hidden" formControlName="universitySlug" [ngModel]="universityOnchangeId">
+              </ng-container>
+              </ng-container>
+
             </select>
           </div>
         </div>
-        <div class="col-lg-2 col-md-3">
+        <div class="col-md-2">
           <div class="form-group">
             <label for="">
 
               {{ currentLanguage === 'ar' ? 'الكلية' :  'Faculty' }}
 
             </label>
-            <select id="my-select" formControlName="faculty" (change)="onChangeFaculty($event)" placeholder="اختر الكلية" class="form-control" name="">
+            <select id="my-select" formControlName="faculty" (change)="onChangeFaculty($event , currentLanguage === 'ar' ? 'ar' : 'en')" placeholder="اختر الكلية" class="form-control" name="">
               <option value="" *ngIf="facultyChoice">
 
                 {{ currentLanguage === 'ar' ? 'اختر الكلية' :  'Choose faculty' }}
 
               </option>
-              <ng-container  *ngFor="let facultyOrginal of faculties" >
-              <ng-container  *ngFor="let faculty of changeFaculty" >
+              <ng-container  *ngFor="let changeFacultyslug of changeFaculty?.slug; let i = index" >
+              <ng-container  *ngFor="let changeFacultyName of changeFaculty?.name; let index = index" >
 
-                <option value="{{facultyOrginal.id}}" *ngIf="faculty.faculty_id ===  facultyOrginal.id" >{{currentLanguage === 'ar' ? facultyOrginal.ar_name : facultyOrginal.en_name}}</option>
+                <option  value="{{changeFacultyslug}}"  *ngIf="i == index">{{changeFacultyName}}</option>
+                <!-- <option value="{{faculty.id}}" *ngIf="faculty.faculty_id ===  facultyOrginal.id" >{{currentLanguage === 'ar' ? facultyOrginal.ar_name : facultyOrginal.en_name}}</option> -->
               </ng-container>
               </ng-container>
 
             </select>
           </div>
         </div>
-        <div class="col-lg-2 col-md-3">
+        <div class="col-md-2">
           <div class="form-group">
             <label for="">
 
               {{ currentLanguage === 'ar' ? 'التخصص' :  'Major' }}
 
             </label>
-            <select id="my-select" (change)="onMajorSaerch($event)" formControlName="major"  placeholder="اختر التخصص" class="form-control" name="">
-              <option *ngIf="majorChoice">
+            <select id="my-select" (change)="onMajorSaerch($event , currentLanguage === 'ar' ? 'ar' : 'en')" formControlName="major"  placeholder="اختر التخصص" class="form-control" name="">
+              <option *ngIf="majorChoice" value="">
 
                 {{ currentLanguage === 'ar' ? 'اختر التخصص' :  'Choose Major' }}
 
               </option>
-              <option value="{{major.id}}" *ngFor="let major of majors">{{currentLanguage === 'ar' ? major.ar_name : major.en_name}}</option>
-            </select>
+              <ng-container  *ngFor="let changeMajorId of changeMajor?.id; let i = index" >
+                <ng-container  *ngFor="let changeMajorName of changeMajor?.name; let index = index" >
+
+                  <option value="{{changeMajorId}}"  *ngIf="i == index">{{changeMajorName}}</option>
+                  <!-- <option value="{{faculty.id}}" *ngIf="faculty.faculty_id ===  facultyOrginal.id" >{{currentLanguage === 'ar' ? facultyOrginal.ar_name : facultyOrginal.en_name}}</option> -->
+                </ng-container>
+                </ng-container>
+              </select>
           </div>
         </div>
-        <div class="col-lg-2 col-md-3">
+        <div class="col-md-2">
           <div class="form-group">
             <label for="">
               {{ currentLanguage === 'ar' ? 'القسم' :  'Department' }}
 
             </label>
             <select id="my-select"  formControlName="department" placeholder="اختر القسم" class="form-control" name="">
-              <option *ngIf="departmentChoice">
+              <option *ngIf="departmentChoice" value="">
                 {{ currentLanguage === 'ar' ? 'اختر القسم' :  'Choose Department' }}
 
               </option>
-              <option *ngFor="let department of departments">
-                {{currentLanguage === 'ar' ? department.ar_name : department.en_name}}
-              </option>
+              <ng-container  *ngFor="let changeDepartmentId of changeDepartment?.id; let i = index" >
+                <ng-container  *ngFor="let changeDepartmentName of changeDepartment?.name; let index = index" >
+
+                  <option value="{{changeDepartmentId}}"  *ngIf="i == index">{{changeDepartmentName}}</option>
+                  <!-- <option value="{{faculty.id}}" *ngIf="faculty.faculty_id ===  facultyOrginal.id" >{{currentLanguage === 'ar' ? facultyOrginal.ar_name : facultyOrginal.en_name}}</option> -->
+                </ng-container>
+                </ng-container>
+
             </select>
           </div>
         </div>
@@ -308,7 +341,7 @@
       <h2 class="section__title">{{ 'specialization_area_title' | translate }}</h2>
     </div>
     <div class="row justify-content-between">
-      <div class="col-lg-2 col-md-3 wow animate__animated animate__slideInLeft">
+      <div class="col-lg-2 col-md-4 wow animate__animated animate__slideInLeft">
         <div class="card card-hover">
           <div class="icon">
             <img src="assets/theme/img/icon/Computer_Science.png" alt="">
@@ -321,7 +354,7 @@
           <h5 class="card-title mb-0">{{ "specialization_area_text_6" | translate }}</h5>
         </div>
       </div>
-      <div class="col-lg-2 col-md-3 wow animate__animated animate__slideInLeft">
+      <div class="col-lg-2 col-md-4 wow animate__animated animate__slideInLeft">
         <div class="card card-hover">
           <div class="icon">
             <img src="assets/theme/img/icon/human_science.png" alt="">
@@ -334,7 +367,7 @@
           <h5 class="card-title mb-0">{{ "specialization_area_text_5" | translate }}</h5>
         </div>
       </div>
-      <div class="col-lg-2 col-md-3 wow animate__animated animate__slideInLeft">
+      <div class="col-lg-2 col-md-4 wow animate__animated animate__slideInLeft">
         <div class="card card-hover">
           <div class="icon">
             <img src="assets/theme/img/icon/Engineering.png" alt="">
@@ -347,7 +380,7 @@
           <h5 class="card-title mb-0">{{ "specialization_area_text_4" | translate }}</h5>
         </div>
       </div>
-      <div class="col-lg-2 col-md-3 wow animate__animated animate__slideInLeft">
+      <div class="col-lg-2 col-md-4 wow animate__animated animate__slideInLeft">
         <div class="card card-hover">
           <div class="icon">
             <img src="assets/theme/img/icon/Medical.png" alt="">
@@ -360,7 +393,7 @@
           <h5 class="card-title mb-0">{{ "specialization_area_text_3" | translate }}</h5>
         </div>
       </div>
-      <div class="col-lg-2 col-md-3 wow animate__animated animate__slideInLeft">
+      <div class="col-lg-2 col-md-4 wow animate__animated animate__slideInLeft">
         <div class="card card-hover">
           <div class="icon">
             <img src="assets/theme/img/icon/Law.png" alt="">
@@ -373,7 +406,7 @@
           <h5 class="card-title mb-0">{{ "specialization_area_text_2" | translate }}</h5>
         </div>
       </div>
-      <div class="col-lg-2 col-md-3 wow animate__animated animate__slideInLeft">
+      <div class="col-lg-2 col-md-4 wow animate__animated animate__slideInLeft">
         <div class="card card-hover">
           <div class="icon">
             <img src="assets/theme/img/icon/Business.png" alt="">
@@ -532,13 +565,13 @@
           <ng-container *ngFor="let review of userReviews">
             <ng-template carouselSlide>
 
-              <div class="testimonial__area--item">
+              <div class="testimonial__area--item" >
                 <div class="testimonial__area--img">
-                  <img [src]="reviewImage+review.user_image" alt="Jhon Smith">
+                  <img [src]="reviewImage+review.user_image" [alt]="review.name">
                 </div>
                 <div class="testimonial__area--desc">
                   <h4 class="testimonial__area--name">{{ review.name }}</h4>
-                  <p class="testimonial__area--p" [innerHtml]="review.message">
+                  <p class="testimonial__area--p" [innerHtml]="review.message | sanitizeHtml">
                   </p>
                 </div>
               </div>
@@ -577,7 +610,7 @@
                 </div>
                 <div class="testimonial__area--desc">
                   <h4 class="testimonial__area--name">{{ review.name }}</h4>
-                  <p class="testimonial__area--p" [innerHtml]="review.message">
+                  <p class="testimonial__area--p" [innerHtml]="review.message | sanitizeHtml">
                   </p>
                 </div>
               </div>
@@ -620,14 +653,14 @@
             </a></h3>
 
             <div class="blog__meta d-flex align-items-center">
-              <div class="blog__author mr-3 d-flex align-items-center" [ngClass]="currentLanguage === 'ar' ? 'ml-2' : 'mr-2' ">
+              <div class="blog__author d-flex align-items-center" >
 
                 <div class="blog__author-info">
                   <i class="fas fa-eye"></i>
                   <span> {{100}} </span>
                 </div>
               </div>
-              <div class="blog__date d-flex align-items-center">
+              <div class="blog__date d-flex align-items-center" [ngStyle]="{ 'margin' :currentLanguage === 'ar' ?  '0 7px 0 0' : '0 0 0 7px '}">
                 <i class="fal ml-2 fa-clock"></i>
                 <span *ngIf="currentLanguage === 'ar'">{{'2021-05-05 12:33:31'| date:'EEEE  d MMMM  y, h:mm a':undefined:'ar'}}</span>
                 <span *ngIf="currentLanguage === 'en'">{{'2021-05-05 12:33:31'| date:'EEEE  d MMMM  y, h:mm a':undefined:'en'}}</span>

@@ -14,20 +14,40 @@ export class StudyService {
   getDestinations():Observable<any>{
     return this._HttpClient.get(`${environment.apiKey}destinations`)
   }
-  getDestinationDetails(slug:any): Observable<any>{
-    return this._HttpClient.get(`${environment.apiKey}${slug}`)
+  getDestinationDetails(
+    slug:any,
+    lang: string
+    ): Observable<any>{
+    return this._HttpClient.get(`${environment.apiKey}destinationData?slug=${slug}&lang=${lang}`)
 
   }
-  getUniversityData(id:number) :Observable<any>{
-    return this._HttpClient.get(`${environment.apiKey}universityData?university_id=${id}`)
+  getMejorDepartments(
+    university_id:number,
+    faculty_id:number,
+  ):Observable<any>{
+    const params = new HttpParams().set('university_id' , university_id).set('faculty_id' , faculty_id)
+    return this._HttpClient.get(`${environment.apiKey}facultyMejorsDepartment` , {
+      params:params
+    })
+  }
+  getUniversityData(
+    slug:string,
+    language:any
+    ) :Observable<any>{
+      const params = new HttpParams().set('slug',slug).set('lang',language)
+    return this._HttpClient.get(`${environment.apiKey}universityData` , {params:params})
+  }
+  getUniversityFaculty(id:number):Observable<any>{
+    return this._HttpClient.get(`${environment.apiKey}facultyOfUnivercity?university_id=${id}`)
   }
   getFacultyData(
-    faculty_id: number,
-    university_id: number
+    faculty_slug: string,
+    university_slug: string,
+    language:string
   ):Observable<any>{
     const params =  new HttpParams().set(
-      'faculty_id', faculty_id
-    ).set('university_id',university_id)
+      'fac_slug', faculty_slug
+    ).set('uni_slug',university_slug).set('lang',language)
 
     return this._HttpClient.get(`${environment.apiKey}facultyData`, {
       params: params
@@ -44,5 +64,13 @@ export class StudyService {
     id:number
   ):Observable<any>{
     return this._HttpClient.get(`${environment.apiKey}engineering?special_id=${id}`)
+  }
+
+  getFacultyAllData(id:number):Observable<any>{
+    return this._HttpClient.get(`${environment.apiKey}facultyAllData?faculty_id=${id}`)
+  }
+
+  getDepartments() :Observable<any>{
+    return this._HttpClient.get(`${environment.apiKey}allDataV`)
   }
 }

@@ -4,13 +4,16 @@ import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import { AdmissionFormComponent } from 'src/app/pages/shared/admission-form/admission-form.component';
 import { AuthenticationService } from 'src/app/services/authentication.service';
+import { UserService } from 'src/app/services/user.service';
 import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss']
+  styleUrls: ['./login.component.scss'],
+  providers:[AdmissionFormComponent]
 })
 export class LoginComponent implements OnInit {
   currentLanguage: any;
@@ -22,7 +25,9 @@ export class LoginComponent implements OnInit {
     private _Router:Router,
     private _AuthenticationService:AuthenticationService,
     private _ToastrService:ToastrService,
-    private _Renderer2:Renderer2
+    private _Renderer2:Renderer2,
+    private _AdmissionFormComponent:AdmissionFormComponent,
+    private _UserService:UserService
   ) { }
 
   ngOnInit(): void {
@@ -48,7 +53,7 @@ export class LoginComponent implements OnInit {
   })
   onLogin(loginForm: FormGroup){
     this.actionLoading = true;
-    this._AuthenticationService.login(
+    this._UserService.login(
       loginForm.value
     ).subscribe(
       (response) => {
@@ -59,6 +64,7 @@ export class LoginComponent implements OnInit {
           // save
           this._AuthenticationService.saveCurrentUserToken();
           this._Router.navigate(['/']);
+          this._AdmissionFormComponent.ngOnInit();
 
           this.actionLoading = false;
         }
@@ -68,24 +74,24 @@ export class LoginComponent implements OnInit {
         if(error.status == 401){
           if(this.currentLanguage === 'ar'){
             this._ToastrService.error(`${error.error.ar_error}` , 'خطأ' , {
-              timeOut: 4000 , positionClass: 'toast-bottom-left'
+              timeOut: 4000 , positionClass: 'toast-bottom-center'
             })
 
           }else{
-            this._ToastrService.error(`${error.error.en_error}` , 'Wrong' , {
-              timeOut: 4000 , positionClass: 'toast-bottom-left'
+            this._ToastrService.error(`${error.error.error}` , 'Wrong' , {
+              timeOut: 4000 , positionClass: 'toast-bottom-center'
             })
           }
           this._TranslateService.onLangChange.subscribe(
             (language) => {
               if(language.lang === 'ar'){
                 this._ToastrService.error(`${error.error.ar_error}` , 'خطأ' , {
-                  timeOut: 4000 , positionClass: 'toast-bottom-left'
+                  timeOut: 4000 , positionClass: 'toast-bottom-center'
                 })
-    
+
               }else{
-                this._ToastrService.error(`${error.error.en_error}` , 'Wrong' , {
-                  timeOut: 4000 , positionClass: 'toast-bottom-left'
+                this._ToastrService.error(`${error.error.error}` , 'Wrong' , {
+                  timeOut: 4000 , positionClass: 'toast-bottom-center'
                 })
               }
             }
@@ -112,7 +118,7 @@ export class LoginComponent implements OnInit {
           this._Title.setTitle(`${environment.title}Login`)
         }else if(language.lang == 'ar'){
           this._Title.setTitle(`${environment.title}تسجيل دخول`)
-    
+
         }
         this.currentLanguage = this._TranslateService.currentLang
       }

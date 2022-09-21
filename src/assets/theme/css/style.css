@@ -1941,6 +1941,10 @@ transition: all 450ms cubic-bezier(0.4, 0.25, 0.3, 1.3);
 .hero__title-2 {
   margin-bottom: 20px;
 }
+.hero__content{
+  min-height: 400px;
+}
+
 .hero__content p {
   font-size: 22px;
   color: #0e1133;
@@ -1961,10 +1965,16 @@ transition: all 450ms cubic-bezier(0.4, 0.25, 0.3, 1.3);
   .hero__content p {
     padding-right: 0px;
   }
+  .hero__content{
+    min-height: 450px;
+  }
 }
 @media (max-width: 575px) {
   .hero__content p {
     padding-right: 0px;
+  }
+  .hero__content{
+    min-height: 450px;
   }
 }
 .hero__content-2 h4 {
@@ -2185,12 +2195,13 @@ transition: all 450ms cubic-bezier(0.4, 0.25, 0.3, 1.3);
   animation: hero-circle-1 6s linear 0s infinite alternate;
 }
 .hero__shape img.hero-1-circle-2 {
-  bottom: -41px;
+  bottom: -50px;
   left: -41px;
   width: 75px;
+  transform: rotate(21deg);
 }
 .hero__shape img.hero-1-dot-2 {
-  bottom: -41px;
+  bottom: -50px;
   right: 40%;
   width: 75px;
 }
@@ -3175,11 +3186,11 @@ transition: all 450ms cubic-bezier(0.4, 0.25, 0.3, 1.3);
   background: #2b4eff;
   color: #ffffff;
 }
-@media (max-width: 575px) {
+/* @media (max-width: 575px) {
   .course__tab-2 .nav-tabs .nav-item .nav-link span {
     display: none;
   }
-}
+} */
 .course__view {
   margin-left: 12px;
 }
@@ -4454,8 +4465,16 @@ transition: all 450ms cubic-bezier(0.4, 0.25, 0.3, 1.3);
   z-index: 1;
   background: linear-gradient(to left, #fff 80%, #202556 20%);
 }
+
 .rtl .cta__inner {
   background: linear-gradient(to right, #fff 80%, #202556 20%);
+
+}
+@media screen and (max-width: 500px) {
+  .cta__inner , .rtl .cta__inner {
+    background: linear-gradient(to left, #fff 100% , #202556 0%);
+
+  }
 
 }
 @media only screen and (min-width: 768px) and (max-width: 991px) {
@@ -4560,6 +4579,8 @@ transition: all 450ms cubic-bezier(0.4, 0.25, 0.3, 1.3);
 @media screen and (max-width:768px){
   .cta__area{
     width: 100% !important;
+      margin: 0 auto -76px auto;
+
   }
 }
 .cta__shape-3 img {
@@ -5005,9 +5026,7 @@ transition: all 450ms cubic-bezier(0.4, 0.25, 0.3, 1.3);
   font-weight: 400;
   text-transform: capitalize;
 }
-/* .cart-area .table > :not(:last-child) > :last-child > * {
-  border-bottom-color: #eaedff;
-} */
+
 .cart-area .table-content table td.product-name a:hover {
   color: #0e1133;
 }
@@ -7917,6 +7936,13 @@ p.checkout-coupon input[type=text]:focus {
   bottom: 75px;
   left: -30px;
   z-index: -1;
+}
+@media screen and (max-width: 500px) {
+  .contact__shape img.contact-shape-1 {
+    bottom: 75px;
+    left: 0;
+    z-index: -1;
+  }
 }
 .contact__shape img.contact-shape-2 {
   top: 30px;

@@ -1,5 +1,6 @@
 import {
-
+  AfterContentChecked,
+  AfterViewChecked,
   Component,
   OnInit,
   Renderer2,
@@ -12,6 +13,7 @@ import { ToastrService } from 'ngx-toastr';
 import { AuthenticationService } from 'src/app/services/authentication.service';
 import { HomeService } from 'src/app/services/home.service';
 import { StudyService } from 'src/app/services/study.service';
+import { UserService } from 'src/app/services/user.service';
 import { environment } from 'src/environments/environment';
 
 @Component({
@@ -30,6 +32,7 @@ export class FacultyComponent implements OnInit {
   universityData: any;
   facultyDatas: any[] = [];
   conditions: any[] = [];
+  majors: any[] = [];
   userArray: any;
   destinationDetail: any;
   specialId!: number;
@@ -49,7 +52,7 @@ export class FacultyComponent implements OnInit {
     private _TranslateService: TranslateService,
     private _AuthenticationService: AuthenticationService,
     private _Title: Title,
-    private _HomeService: HomeService,
+    private _UserService: UserService,
     private _ToastrService: ToastrService,
     private _Renderer2:Renderer2
   ) {}
@@ -69,31 +72,58 @@ export class FacultyComponent implements OnInit {
       this.loading = true;
       this._StudyService
         .getFacultyData(
-          params['params'].faculty_id,
-          params['params'].university_id
+          params['params'].faculty_slug,
+          params['params'].university_slug,
+          this.currentLanguage
         )
         .subscribe((response) => {
           this.specialId = response.facultyData.special_id;
-          this._StudyService.studyByFaculty(this.specialId).subscribe(
+            this._StudyService.getDestinations().subscribe(
+              (data) => {
+                const destinations = data.destinations.filter(
+                  (destination: any) => {
+                    return destination.id = response.university?.destination_id
+                  }
+                )
+                this.destinationDetail =  destinations[0]
+              }
+            )
+
+          this.facultyData = response.facultyData;
+          this.facultyUniversity = response.facultyUniversity;
+          // this.facultyDatas = response.facultyDatas;
+          this.conditions = response.mejorData;
+          this.universityData = response.university;
+          this._StudyService.getUniversityFaculty(this.universityData?.id).subscribe(
             (response) => {
-              const otherFacultyContainer = response.faculty.filter((faculty: any) => {
-                return faculty.id != params['params'].faculty_id;
+              const otherFacultyContainer = response.Faculties.filter((faculty: any) => {
+                return faculty.faculty.en_slug != params['params'].faculty_slug && faculty.faculty.special_id == this.specialId;
               });
 
-              function func(a:any, b:any) {
+              function func() {
                 return 0.5 - Math.random();
               }
               otherFacultyContainer.sort(func)
 
               this.otherFacultiesSpecial = otherFacultyContainer;
-              console.log(otherFacultyContainer);
             }
           )
-          this.facultyData = response.facultyData;
-          this.facultyUniversity = response.facultyUniversity;
-          this.facultyDatas = response.facultyDatas;
-          this.conditions = response.mejorData;
-          this.universityData = response.university;
+
+          this._StudyService.getMejorDepartments(this.universityData?.id , this.facultyData?.id).subscribe(
+            (response) => {
+              this.majors =  response.mejorData;
+              this.loading = false;
+
+            }
+          )
+          this._StudyService.getFacultyAllData(this.facultyUniversity?.id).subscribe(
+            (response) => {
+              this.facultyDatas = response.facultyData;
+              this.loading = false;
+
+            }
+          )
+          this._Renderer2.removeStyle(body, 'overflow')
           if (this.currentLanguage == 'en') {
             this._Title.setTitle(
               `${environment.title}${this.facultyData?.en_name}`
@@ -116,24 +146,7 @@ export class FacultyComponent implements OnInit {
               }
             }
           )
-          // this.loading = false;
-          this._HomeService.getHomeData().subscribe((response) => {
-            this.facultyUniversities = response.facultyUniversity;
 
-            const destinationConatiner = response.destinations.filter(
-              (destination: any) => {
-                return destination.id == this.universityData.destination_id;
-              }
-            );
-            let facultyArray2 = this.otherFacultiesSpecial.map(v => ({ ...v, ...response.facultyUniversity.find((sp:any) =>
-                sp.faculty_id === v.id
-                )
-              }));
-              this.faculties =  facultyArray2 ;
-            this.destinationDetail = destinationConatiner[0];
-            this._Renderer2.removeStyle(body, 'overflow')
-            this.loading = false;
-          });
         });
 
     });
@@ -148,20 +161,12 @@ export class FacultyComponent implements OnInit {
     page: new FormControl('ss', Validators.required),
     user_id: new FormControl('', Validators.required),
   });
-  // registerForm: FormGroup = new FormGroup({
-  //   'admission_destination_id': new FormControl('', Validators.required),
-  //   'admission_university_id': new FormControl('', Validators.required),
-  //   'admission_fac_uni_id': new FormControl('', Validators.required),
-  //   'admission_fac_uni_major_id': new FormControl('', Validators.required),
-  //   'user_id': new FormControl('', Validators.required),
-  // })
+
   onRegister(registerForm: FormGroup) {
-    console.log(registerForm);
-    console.log(registerForm.value);
-    this._AuthenticationService
+
+    this._UserService
       .submitAdmissionInformation(registerForm.value)
       .subscribe((response) => {
-        console.log(response);
         // if (this.currentLanguage === 'en') {
         //   this._ToastrService.success(`${response.success}`, `success`);
         // } else if (this.currentLanguage === 'ar') {
@@ -170,14 +175,14 @@ export class FacultyComponent implements OnInit {
         if(response.success === 'You registered before and we will call you soon'){
           if(this.currentLanguage === 'en'){
             this._ToastrService.warning(`${response.success}`,`Attention` , {
-              timeOut: 4000 , positionClass: 'toast-bottom-left'
+              timeOut: 4000 , positionClass: 'toast-bottom-center'
 
             })
 
             this.actionLoading = false;
           }else if(this.currentLanguage === 'ar'){
             this._ToastrService.warning(`${response.ar_success}`,`تنبيه`, {
-              timeOut: 4000 , positionClass: 'toast-bottom-left'
+              timeOut: 4000 , positionClass: 'toast-bottom-center'
 
             })
             this.actionLoading = false;
@@ -186,14 +191,14 @@ export class FacultyComponent implements OnInit {
             (language) => {
               if(language.lang === 'en'){
                 this._ToastrService.warning(`${response.success}`,`success` , {
-                  timeOut: 4000 , positionClass: 'toast-bottom-left'
+                  timeOut: 4000 , positionClass: 'toast-bottom-center'
 
                 })
 
                 this.actionLoading = false;
               }else if(language.lang === 'ar'){
                 this._ToastrService.warning(`${response.ar_success}`,`تسجيل صحيح` , {
-                  timeOut: 4000 , positionClass: 'toast-bottom-left'
+                  timeOut: 4000 , positionClass: 'toast-bottom-center'
 
                 })
                 this.actionLoading = false;
@@ -203,14 +208,14 @@ export class FacultyComponent implements OnInit {
         }else{
           if(this.currentLanguage === 'en'){
             this._ToastrService.success(`${response.success}`,`success` , {
-              timeOut: 4000 , positionClass: 'toast-bottom-left'
+              timeOut: 4000 , positionClass: 'toast-bottom-center'
 
             })
 
             this.actionLoading = false;
           }else if(this.currentLanguage === 'ar'){
             this._ToastrService.success(`${response.ar_success}`,`تسجيل صحيح` , {
-              timeOut: 4000 , positionClass: 'toast-bottom-left'
+              timeOut: 4000 , positionClass: 'toast-bottom-center'
 
             })
             this.actionLoading = false;
@@ -219,14 +224,14 @@ export class FacultyComponent implements OnInit {
             (language) => {
               if(language.lang === 'en'){
                 this._ToastrService.success(`${response.success}`,`success` , {
-                  timeOut: 4000 , positionClass: 'toast-bottom-left'
+                  timeOut: 4000 , positionClass: 'toast-bottom-center'
 
                 })
 
                 this.actionLoading = false;
               }else if(language.lang === 'ar'){
                 this._ToastrService.success(`${response.ar_success}`,`تسجيل صحيح` , {
-                  timeOut: 4000 , positionClass: 'toast-bottom-left'
+                  timeOut: 4000 , positionClass: 'toast-bottom-center'
 
                 })
                 this.actionLoading = false;
@@ -239,7 +244,7 @@ export class FacultyComponent implements OnInit {
   }
   showPersonalInformation() {
     if (localStorage.getItem('currentUserToken') !== null) {
-      this._AuthenticationService
+      this._UserService
         .getPersonalInformation(this.userArray.id)
         .subscribe((response) => {
           console.log(response);
@@ -249,7 +254,7 @@ export class FacultyComponent implements OnInit {
   }
   showAcademicInformation() {
     if (localStorage.getItem('currentUserToken') !== null) {
-      this._AuthenticationService
+      this._UserService
         .getAcademicInformation(this.userArray.id)
         .subscribe((response) => {
           console.log(response);

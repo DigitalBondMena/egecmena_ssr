@@ -4,13 +4,16 @@ import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import { AdmissionFormComponent } from 'src/app/pages/shared/admission-form/admission-form.component';
 import { AuthenticationService } from 'src/app/services/authentication.service';
+import { UserService } from 'src/app/services/user.service';
 import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-movement-information',
   templateUrl: './movement-information.component.html',
-  styleUrls: ['./movement-information.component.scss']
+  styleUrls: ['./movement-information.component.scss'],
+  providers:[AdmissionFormComponent]
 })
 export class MovementInformationComponent implements OnInit {
 
@@ -27,7 +30,8 @@ export class MovementInformationComponent implements OnInit {
     private _Title: Title,
     private _Router: Router,
     private _AuthenticationService: AuthenticationService,
-    private _ToastrService:ToastrService
+    private _ToastrService:ToastrService,
+    private _UserService:UserService
   ) {}
 
   ngOnInit(): void {
@@ -133,7 +137,7 @@ export class MovementInformationComponent implements OnInit {
     firstPaper:FormGroup
   ) {
     console.log(firstPaper);
-    this._AuthenticationService.submitFirstPaperMovement(
+    this._UserService.submitFirstPaperMovement(
       this.firstPaper.value.passport,
       this.firstPaper.value.secondary_certificate,
       this.firstPaper.value.birth_certificate,
@@ -145,24 +149,24 @@ export class MovementInformationComponent implements OnInit {
         if(response.success){
           if(this.currentLanguage === 'ar'){
             this._ToastrService.success(`${response.ar_success}` , `ارسال صحيح`,
-            { timeOut: 4000 , positionClass: 'toast-bottom-left'
+            { timeOut: 4000 , positionClass: 'toast-bottom-center'
           })
 
           }else{
             this._ToastrService.success(`${response.success}` , `Succssefully sent`,
-            { timeOut: 4000 , positionClass: 'toast-bottom-left'
+            { timeOut: 4000 , positionClass: 'toast-bottom-center'
           })
           }
           this._TranslateService.onLangChange.subscribe
           ((language) => {
             if(language.lang === 'ar'){
               this._ToastrService.success(`${response.ar_success}` , `ارسال صحيح`,
-              { timeOut: 4000 , positionClass: 'toast-bottom-left'
+              { timeOut: 4000 , positionClass: 'toast-bottom-center'
             })
 
             }else{
               this._ToastrService.success(`${response.success}` , `Succssefully sent`,
-              { timeOut: 4000 , positionClass: 'toast-bottom-left'
+              { timeOut: 4000 , positionClass: 'toast-bottom-center'
             })
             }
           })
@@ -177,7 +181,7 @@ export class MovementInformationComponent implements OnInit {
     secondPaper:FormGroup
   ) {
     console.log(secondPaper);
-    this._AuthenticationService.submitSecondPaperMovement(
+    this._UserService.submitSecondPaperMovement(
       this.secondPaper.value.diploma,
       this.secondPaper.value.authorization,
       this.secondPaper.value.image,
@@ -187,24 +191,24 @@ export class MovementInformationComponent implements OnInit {
       (response) => {
         if(this.currentLanguage === 'ar'){
           this._ToastrService.success(`${response.ar_success}` , `ارسال صحيح`,
-          { timeOut: 4000 , positionClass: 'toast-bottom-left'
+          { timeOut: 4000 , positionClass: 'toast-bottom-center'
         })
 
         }else{
           this._ToastrService.success(`${response.success}` , `Succssefully sent`,
-          { timeOut: 4000 , positionClass: 'toast-bottom-left'
+          { timeOut: 4000 , positionClass: 'toast-bottom-center'
         })
         }
         this._TranslateService.onLangChange.subscribe
         ((language) => {
           if(language.lang === 'ar'){
             this._ToastrService.success(`${response.ar_success}` , `ارسال صحيح`,
-            { timeOut: 4000 , positionClass: 'toast-bottom-left'
+            { timeOut: 4000 , positionClass: 'toast-bottom-center'
           })
 
           }else{
             this._ToastrService.success(`${response.success}` , `Succssefully sent`,
-            { timeOut: 4000 , positionClass: 'toast-bottom-left'
+            { timeOut: 4000 , positionClass: 'toast-bottom-center'
           })
           }
         })
@@ -217,7 +221,7 @@ export class MovementInformationComponent implements OnInit {
   showPersonalInformation() {
     if (localStorage.getItem('currentUserToken') !== null) {
 
-    this._AuthenticationService
+    this._UserService
       .getPersonalInformation(this.userArray.id)
       .subscribe((response) => {
         console.log(response);
@@ -226,7 +230,7 @@ export class MovementInformationComponent implements OnInit {
     }
   }
   showPaperInfo(){
-    this._AuthenticationService.getPaperInfo(this.userArray.id).subscribe(
+    this._UserService.getPaperInfo(this.userArray.id).subscribe(
       (response) => {
         console.log(response);
         this.paperMessage = response.message

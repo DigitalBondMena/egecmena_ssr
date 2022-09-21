@@ -18,6 +18,11 @@
                     {{"destination" | translate }}
                   </a>
                 </li>
+                <li  class="breadcrumb-item" aria-current="page">
+                  <a [routerLink]="['/university/', currentLanguage === 'ar' ? 'مصر' :  'egypt' , currentLanguage === 'ar' ? universityData?.ar_slug : universityData?.en_slug  ]">
+                    {{ currentLanguage === 'ar' ? universityData?.ar_name : universityData?.en_name }}
+                  </a>
+                </li>
                 <li class="breadcrumb-item active" aria-current="page">
                   {{ currentLanguage === 'ar' ? facultyData?.ar_name : facultyData?.en_name }}
                 </li>
@@ -38,7 +43,7 @@
   </div>
   <div class="container">
     <div class="row">
-      <div class="col-xxl-9 col-xl-9 col-lg-9">
+      <div class="col-xl-9 col-lg-8 col-md-7">
           <div class="course__wrapper">
             <div class="page__title-content mb-25">
 
@@ -54,152 +59,159 @@
                     </a>
                     <ng-template ngbNavContent>
                       <div class="course__description" *ngFor="let facultyData of facultyDatas">
-                        <div [innerHtml]="currentLanguage === 'ar' ? facultyData?.ar_title : facultyData?.en_title" class="card__header"></div>
-                        <div [innerHtml]="currentLanguage === 'ar' ?facultyData?.ar_text : facultyData?.en_text"></div>
+                        <div [innerHtml]="currentLanguage === 'ar' ? facultyData?.ar_title : facultyData?.en_title | sanitizeHtml" class="card__header"></div>
+                        <div [innerHtml]="currentLanguage === 'ar' ?facultyData?.ar_text : facultyData?.en_text | sanitizeHtml"></div>
                       </div>
                     </ng-template>
                   </li>
-                  <li [ngbNavItem]="major.id" class="nav-item university__page--navitem col" [title]="currentLanguage === 'ar' ? major.ar_name :  major.en_name" *ngFor="let major of facultyUniversity?.majors">
+                  <li [ngbNavItem]="major.id" class="nav-item university__page--navitem col" [title]="currentLanguage === 'ar' ? major.ar_name :  major.en_name" *ngFor="let major of majors">
                     <a ngbNavLink  class="nav-link  university__page--navlink">
                       <i class="fa fa-university" [ngClass]="currentLanguage == 'ar' ? 'ml-3' : 'mr-2'"></i>
                       <span>{{currentLanguage === 'ar' ? major.ar_name :  major.en_name }}</span>
                     </a>
                     <ng-template ngbNavContent>
                       <div class="course__tab-2 p-relative">
+                        <div class="row">
+                          <div class="col-lg-8" [ngClass]="{'col-lg-12': !alertStatus}">
+                            <ul ngbNav #test="ngbNav" class="nav nav-tabs tabs-2 row justify-content-center">
 
-                        <ul ngbNav #test="ngbNav" class="nav nav-tabs tabs-2 row justify-content-center">
-                          <div class="alert alert-majors " role="alert" *ngIf="alertStatus">
-                            <h4 class="text-center">{{ currentLanguage === 'ar' ? 'هل تريد الألتحاق بالكلية' : 'Do you want to go to college?' }}</h4>
-                            <form [formGroup]="registerForm" (ngSubmit)="onRegister(registerForm)">
-                              <div class="row justify-content-center">
-                                <ng-container *ngIf="userArray !=  null && userPersonalInfo?.full_name != null && userAcademicInfo?.academicInfo.degree_name != null">
-                                  <input type="hidden" formControlName="destination" [ngModel]="destinationDetail?.en_name">
-                                  <input type="hidden" formControlName="university" [ngModel]="universityData?.en_name">
-                                  <input type="hidden" formControlName="faculty" [ngModel]="facultyData?.en_name">
-                                  <input type="hidden" formControlName="user_id" [ngModel]="userArray.id">
-                                  <!-- <div class="registerDiv button">
-                                    <button class="registerButton" >{{ currentLanguage === 'ar' ? 'سجل الأن!' : 'Register Now' }}</button>
-                                  </div> -->
-                                  <div class="row justify-content-center">
-                                    <div class="col-md-2 text-center">
+                              <li [ngbNavItem]="1" class="nav-item university__page--navitem col-lg-4">
+                                <a ngbNavLink class="nav-link  university__page--navlink"> {{currentLanguage ==='ar' ? 'الأقسام' : 'Departments'}}</a>
+                                <ng-template ngbNavContent>
+                                  <div class="row">
+                                    <div class="col-lg-6" *ngFor="let department of major.pivot?.departments">
+                                      <div class="course__item white-bg mb-30 fix">
 
-                                      <button class="btn btn-success">
-                                        <!-- <img src="https://egecmena.com/frontend/images/register.png" alt=""> -->
-                                        {{currentLanguage === 'ar' ? 'نعم' : 'Yes'}}
-                                      </button>
+                                          <div class="course__right">
+                                            <div class="course__content course__content-4">
+
+                                              <h3 class="course__title text-center mb-0">
+                                                <a [title]="currentLanguage === 'ar' ? department.ar_name : department.en_name">
+                                                  {{currentLanguage === 'ar' ? department.ar_name : department.en_name}}
+                                                </a>
+                                              </h3>
+
+                                            </div>
+
+                                          </div>
+                                      </div>
                                     </div>
-                                    <div class="col-md-2 text-center">
-                                      <button type="button" class="btn btn-danger" (click)="closeAlert(major.id)">
-                                        {{currentLanguage === 'ar' ? 'لا' : 'No'}}
 
-                                      </button>
-
-                                    </div>
                                   </div>
-                                </ng-container>
-                                <ng-container *ngIf="userPersonalInfo?.full_name != null && userAcademicInfo?.academicInfo == 'No Academic Info Found' ">
 
-                                  <div class="row justify-content-center">
-                                    <div class="col-md-2 text-center">
-                                  <a routerLink="/academic-information" class="btn btn-success ">
-                                    {{currentLanguage === 'ar' ? 'نعم' : 'Yes'}}
-                                  </a>
-                                  </div>
-                                  <div class="col-md-2 text-center">
+                                </ng-template>
+                              </li>
+                              <li [ngbNavItem]="2" class="nav-item university__page--navitem col-lg-4">
+                                <a ngbNavLink class="nav-link  university__page--navlink">{{currentLanguage ==='ar' ? 'الشروط' : 'Conditions'}}</a>
+                                <ng-template ngbNavContent>
 
-                                  <button type="button" class="btn btn-danger">
-                                    {{currentLanguage === 'ar' ? 'لا' : 'No'}}
+                                  <div class="course__description" *ngFor="let condition of conditions">
+                                    <!-- {{condition.major_id === major.id}} -->
+                                  <ng-container *ngIf="condition.major_id === major.id">
+                                    <ng-container *ngIf="condition?.ar_title_condition != null || condition?.en_title_condition != null">
+                                      <div [innerHtml]="currentLanguage === 'ar' ? condition?.ar_title_condition : condition?.en_title_condition | sanitizeHtml" class="card__header"></div>
+                                    </ng-container>
+                                    <ng-container *ngIf="condition?.ar_text_condition != null || condition?.en_text_condition != null">
+                                      <div [innerHtml]="currentLanguage === 'ar' ?condition?.ar_text_condition : condition?.en_text_condition | sanitizeHtml"></div>
+                                    </ng-container>
+                                  </ng-container>
+                                  </div>
+                                </ng-template>
+                              </li>
 
-                                  </button>
-                                  </div>
-                                  </div>
-                                </ng-container>
-                                <ng-container *ngIf="userPersonalInfo?.full_name == null && userArray != undefined">
+                            </ul>
+                            <div [ngbNavOutlet]="test" class="mt-2">
+                            </div>
 
-                                  <div class="row justify-content-center">
-                                    <div class="col-md-2 text-center">
-                                  <a routerLink="/personal-information" class="btn btn-success ">
-                                    {{currentLanguage === 'ar' ? 'نعم' : 'Yes'}}
-                                  </a>
-                                  </div>
-                                  <div class="col-md-2 text-center">
-
-                                  <button type="button" class="btn btn-danger">
-                                    {{currentLanguage === 'ar' ? 'لا' : 'No'}}
-
-                                  </button>
-                                  </div>
-                                  </div>
-                                </ng-container>
-                                <ng-container *ngIf="userArray == undefined">
-                                  <!-- <div class="registerDiv link">
-                                    <a routerLink="/login" class="registerButton" >{{ currentLanguage === 'ar' ? 'سجل الأن!' : 'Register Now' }}</a>
-                                  </div> -->
-                                  <div class="row justify-content-center">
-                                    <div class="col-md-2 text-center">
-                                  <a routerLink="/login" class="btn btn-success ">
-                                    {{currentLanguage === 'ar' ? 'نعم' : 'Yes'}}
-                                  </a>
-                                  </div>
-                                  <div class="col-md-2 text-center">
-
-                                  <button type="button" class="btn btn-danger">
-                                    {{currentLanguage === 'ar' ? 'لا' : 'No'}}
-
-                                  </button>
-                                  </div>
-                                  </div>
-                                </ng-container>
-                              </div>
-
-                            </form>
                           </div>
-                          <li [ngbNavItem]="1" class="nav-item university__page--navitem col-lg-4">
-                            <a ngbNavLink class="nav-link  university__page--navlink"> {{currentLanguage ==='ar' ? 'الأقسام' : 'Departments'}}</a>
-                            <ng-template ngbNavContent>
-                              <div class="row">
-                                <div class="col-lg-6" *ngFor="let department of major.pivot?.departments">
-                                  <div class="course__item white-bg mb-30 fix">
+                          <div class="col-lg-4" *ngIf="alertStatus">
+                            <div class="alert alert-majors " role="alert" >
+                              <h4 class="text-center">{{ currentLanguage === 'ar' ? 'هل تريد الألتحاق بالكلية' : 'Do you want to go to college?' }}</h4>
+                              <form [formGroup]="registerForm" (ngSubmit)="onRegister(registerForm)">
+                                <div class="row justify-content-center">
+                                  <ng-container *ngIf="userArray !=  null && userPersonalInfo?.full_name != null && userAcademicInfo?.academicInfo.degree_name != null">
+                                    <input type="hidden" formControlName="destination" [ngModel]="destinationDetail?.en_name">
+                                    <input type="hidden" formControlName="university" [ngModel]="universityData?.en_name">
+                                    <input type="hidden" formControlName="faculty" [ngModel]="facultyData?.en_name">
+                                    <input type="hidden" formControlName="user_id" [ngModel]="userArray.id">
+                                    <!-- <div class="registerDiv button">
+                                      <button class="registerButton" >{{ currentLanguage === 'ar' ? 'سجل الأن!' : 'Register Now' }}</button>
+                                    </div> -->
+                                    <div class="row justify-content-center">
+                                      <div class="col-md-3 text-center">
 
-                                      <div class="course__right">
-                                        <div class="course__content course__content-4">
+                                        <button class="btn btn-success">
+                                          <!-- <img src="https://egecmena.com/frontend/images/register.png" alt=""> -->
+                                          {{currentLanguage === 'ar' ? 'نعم' : 'Yes'}}
+                                        </button>
+                                      </div>
+                                      <div class="col-md-3 text-center">
+                                        <button type="button" class="btn btn-danger" (click)="closeAlert(major.id)">
+                                          {{currentLanguage === 'ar' ? 'لا' : 'No'}}
 
-                                          <h3 class="course__title text-center mb-0">
-                                            <a [title]="currentLanguage === 'ar' ? department.ar_name : department.en_name">
-                                              {{currentLanguage === 'ar' ? department.ar_name : department.en_name}}
-                                            </a>
-                                          </h3>
-
-                                        </div>
+                                        </button>
 
                                       </div>
-                                  </div>
+                                    </div>
+                                  </ng-container>
+                                  <ng-container *ngIf="userPersonalInfo?.full_name != null && userAcademicInfo?.academicInfo == 'No Academic Info Found' ">
+
+                                    <div class="row justify-content-center">
+                                      <div class="col-md-3 text-center">
+                                    <a routerLink="/academic-information" class="btn btn-success ">
+                                      {{currentLanguage === 'ar' ? 'نعم' : 'Yes'}}
+                                    </a>
+                                    </div>
+                                    <div class="col-md-3 text-center">
+
+                                    <button type="button" class="btn btn-danger" (click)="closeAlert(major.id)">
+                                      {{currentLanguage === 'ar' ? 'لا' : 'No'}}
+
+                                    </button>
+                                    </div>
+                                    </div>
+                                  </ng-container>
+                                  <ng-container *ngIf="userPersonalInfo?.full_name == null && userArray != undefined">
+
+                                    <div class="row justify-content-center">
+                                      <div class="col-md-3 text-center">
+                                    <a routerLink="/personal-information" class="btn btn-success ">
+                                      {{currentLanguage === 'ar' ? 'نعم' : 'Yes'}}
+                                    </a>
+                                    </div>
+                                    <div class="col-md-3 text-center">
+
+                                    <button type="button" class="btn btn-danger" (click)="closeAlert(major.id)">
+                                      {{currentLanguage === 'ar' ? 'لا' : 'No'}}
+
+                                    </button>
+                                    </div>
+                                    </div>
+                                  </ng-container>
+                                  <ng-container *ngIf="userArray == undefined">
+                                    <!-- <div class="registerDiv link">
+                                      <a routerLink="/login" class="registerButton" >{{ currentLanguage === 'ar' ? 'سجل الأن!' : 'Register Now' }}</a>
+                                    </div> -->
+                                    <div class="row justify-content-center">
+                                      <div class="col-md-3 text-center">
+                                    <a routerLink="/login" class="btn btn-success ">
+                                      {{currentLanguage === 'ar' ? 'نعم' : 'Yes'}}
+                                    </a>
+                                    </div>
+                                    <div class="col-md-3 text-center">
+
+                                    <button type="button" class="btn btn-danger" (click)="closeAlert(major.id)">
+                                      {{currentLanguage === 'ar' ? 'لا' : 'No'}}
+
+                                    </button>
+                                    </div>
+                                    </div>
+                                  </ng-container>
                                 </div>
 
-                              </div>
-
-                            </ng-template>
-                          </li>
-                          <li [ngbNavItem]="2" class="nav-item university__page--navitem col-lg-4">
-                            <a ngbNavLink class="nav-link  university__page--navlink">{{currentLanguage ==='ar' ? 'الشروط' : 'Conditions'}}</a>
-                            <ng-template ngbNavContent>
-
-                              <div class="course__description" *ngFor="let condition of conditions">
-                                <!-- {{condition.major_id === major.id}} -->
-                              <ng-container *ngIf="condition.major_id === major.id">
-                                <ng-container *ngIf="condition?.ar_title_condition != null || condition?.en_title_condition != null">
-                                  <div [innerHtml]="currentLanguage === 'ar' ? condition?.ar_title_condition : condition?.en_title_condition" class="card__header"></div>
-                                </ng-container>
-                                <ng-container *ngIf="condition?.ar_text_condition != null || condition?.en_text_condition != null">
-                                  <div [innerHtml]="currentLanguage === 'ar' ?condition?.ar_text_condition : condition?.en_text_condition"></div>
-                                </ng-container>
-                              </ng-container>
-                              </div>
-                            </ng-template>
-                          </li>
-
-                        </ul>
-                        <div [ngbNavOutlet]="test" class="mt-2">
+                              </form>
+                            </div>
+                        </div>
                       </div>
 
                       </div>
@@ -217,7 +229,7 @@
 
           </div>
       </div>
-      <div class="col-xxl-3 col-xl-3 col-lg-3">
+      <div class="col-xl-3 col-lg-4 col-md-5">
           <div class="course__sidebar p-relative">
             <div class="course__shape">
                 <img class="course-dot" src="assets/theme/img/course/course-dot.png" alt="">
@@ -238,7 +250,7 @@
                             </div>
                             <div class="course__video-info">
                               <h5><span>{{currentLanguage === 'ar' ? 'العنوان' : 'Address'}} :</span>
-                                <div [innerHtml]="currentLanguage === 'ar' ? facultyUniversity?.ar_address : facultyUniversity?.en_address"></div>
+                                <div [innerHtml]="currentLanguage === 'ar' ? facultyUniversity?.ar_address : facultyUniversity?.en_address | sanitizeHtml"></div>
                               </h5>
                             </div>
                         </li>
@@ -271,12 +283,12 @@
               <div class="course__sidebar-course">
                 <h3 class="course__sidebar-title">{{"related_faculties" | translate }}</h3>
                 <ul>
-                  <ng-container *ngIf="faculties.length > 1; else facultyEmpty">
+                  <ng-container *ngIf="otherFacultiesSpecial.length > 0; else facultyEmpty">
 
 
 
-                    <li *ngFor="let otherFaculty of faculties | slice:0:3">
-                          <a  [routerLink]="['/faculty', otherFaculty.id , otherFaculty.university_id ]">
+                    <li *ngFor="let otherFaculty of otherFacultiesSpecial | slice:0:3">
+                          <a  [routerLink]="['/faculty', otherFaculty.faculty?.en_slug , universityData?.en_slug ]">
 
                             <div class="course__sm d-flex align-items-center mb-30">
                               <div class="course__sm-thumb" [ngClass]="currentLanguage == 'ar' ? 'ml-20' : 'mr-20'">
@@ -284,7 +296,7 @@
                               </div>
                               <div class="course__sm-content">
 
-                                <h5>{{currentLanguage === 'ar' ?  otherFaculty.ar_name : otherFaculty.en_name}}</h5>
+                                <h5>{{currentLanguage === 'ar' ?  otherFaculty.faculty?.ar_name : otherFaculty.faculty?.en_name}}</h5>
 
                               </div>
                             </div>

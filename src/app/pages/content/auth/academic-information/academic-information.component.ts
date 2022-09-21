@@ -4,13 +4,17 @@ import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import { BehaviorSubject } from "rxjs";
+import { AdmissionFormComponent } from 'src/app/pages/shared/admission-form/admission-form.component';
 import { AuthenticationService } from 'src/app/services/authentication.service';
+import { UserService } from 'src/app/services/user.service';
 import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-academic-information',
   templateUrl: './academic-information.component.html',
-  styleUrls: ['./academic-information.component.scss']
+  styleUrls: ['./academic-information.component.scss'],
+  providers:[AdmissionFormComponent]
 })
 export class AcademicInformationComponent implements OnInit {
 
@@ -26,7 +30,10 @@ export class AcademicInformationComponent implements OnInit {
     private _Title: Title,
     private _Router: Router,
     private _AuthenticationService: AuthenticationService,
-    private _ToastrService:ToastrService
+    private _ToastrService:ToastrService,
+    private _AdmissionFormComponent:AdmissionFormComponent,
+    private _UserService:UserService
+
   ) {}
 
   ngOnInit(): void {
@@ -59,20 +66,21 @@ export class AcademicInformationComponent implements OnInit {
   onSubmitAcademicInforrmation(academicInformationForm: FormGroup) {
     this.actionLoading = true;
     console.log(academicInformationForm.value);
-    this._AuthenticationService
+    this._UserService
       .saveAcademicInformation(academicInformationForm.value)
       .subscribe((response) => {
         console.log(response);
         if(response.success){
+          this._AdmissionFormComponent.ngOnInit();
           if(this.currentLanguage === 'en'){
             this._ToastrService.success(`${response.success}`,`success` , {
-              timeOut: 4000 , positionClass: 'toast-bottom-left'
+              timeOut: 4000 , positionClass: 'toast-bottom-center'
 
             })
 
           }else if(this.currentLanguage === 'ar'){
             this._ToastrService.success(`${response.ar_success}`,`تسجيل صحيح` , {
-              timeOut: 4000 , positionClass: 'toast-bottom-left'
+              timeOut: 4000 , positionClass: 'toast-bottom-center'
 
             })
           }
@@ -80,13 +88,13 @@ export class AcademicInformationComponent implements OnInit {
             (language) => {
               if(language.lang === 'en'){
                 this._ToastrService.success(`${response.success}`,`success` , {
-                  timeOut: 4000 , positionClass: 'toast-bottom-left'
+                  timeOut: 4000 , positionClass: 'toast-bottom-center'
 
                 })
 
               }else if(language.lang === 'ar'){
                 this._ToastrService.success(`${response.ar_success}`,`تسجيل صحيح` , {
-                  timeOut: 4000 , positionClass: 'toast-bottom-left'
+                  timeOut: 4000 , positionClass: 'toast-bottom-center'
 
                 })
               }
@@ -101,7 +109,7 @@ export class AcademicInformationComponent implements OnInit {
     this.loading = true;
     if (localStorage.getItem('currentUserToken') !== null) {
 
-    this._AuthenticationService
+    this._UserService
       .getPersonalInformation(this.userArray.id)
       .subscribe((response) => {
         console.log(response);
@@ -109,12 +117,12 @@ export class AcademicInformationComponent implements OnInit {
         if(response.userPersonalInfo?.full_name == null){
           if(this.currentLanguage === 'ar'){
             this._ToastrService.error('لابد من اكمال المعلومات الشخصية اولا' , 'معلومات غير مكتملة' , {
-              timeOut: 4000 , positionClass: 'toast-bottom-left'
+              timeOut: 4000 , positionClass: 'toast-bottom-center'
 
             })
           }else{
             this._ToastrService.error('You must complete your personal information first' , 'Un complete data' , {
-              timeOut: 4000 , positionClass: 'toast-bottom-left'
+              timeOut: 4000 , positionClass: 'toast-bottom-center'
 
             })
           }
@@ -122,12 +130,12 @@ export class AcademicInformationComponent implements OnInit {
             (language) => {
               if(language.lang === 'ar'){
                 this._ToastrService.error('لابد من اكمال المعلومات الشخصية اولا' , 'معلومات غير مكتملة' , {
-                  timeOut: 4000 , positionClass: 'toast-bottom-left'
+                  timeOut: 4000 , positionClass: 'toast-bottom-center'
 
                 })
               }else{
                 this._ToastrService.error('You must complete your personal information first' , 'Un complete data' , {
-                  timeOut: 4000 , positionClass: 'toast-bottom-left'
+                  timeOut: 4000 , positionClass: 'toast-bottom-center'
 
                 })
               }
@@ -146,7 +154,7 @@ export class AcademicInformationComponent implements OnInit {
     this.loading = true;
     if (localStorage.getItem('currentUserToken') !== null) {
 
-    this._AuthenticationService
+    this._UserService
       .getAcademicInformation(this.userArray.id)
       .subscribe((response) => {
         this.userAcademicInfo = response;

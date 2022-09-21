@@ -76,7 +76,7 @@
                     <ul class="submenu">
                       <li *ngFor="let destination of destinations" (click)="onClickLi()">
                         <a
-                          [routerLink]="['/destination/', destination.en_slug]">{{currentLanguage === 'ar' ? destination.ar_name  :  destination.en_name}}</a>
+                          [routerLink]="['/destination/', currentLanguage === 'ar' ? destination.ar_slug : destination.en_slug]">{{currentLanguage === 'ar' ? destination.ar_name  :  destination.en_name}}</a>
                       </li>
 
                     </ul>
@@ -135,7 +135,7 @@
               </div>
             </div>
             <div class="sidebar__menu d-xl-none">
-              <div class="sidebar-toggle-btn ml-30" (click)="openNavbar()" id="sidebar-toggle">
+              <div class="sidebar-toggle-btn" [ngClass]="currentLanguage === 'ar' ? 'mr-30' : 'ml-30' " (click)="openNavbar()" id="sidebar-toggle">
                 <span class="line"></span>
                 <span class="line"></span>
                 <span class="line"></span>
@@ -151,57 +151,6 @@
   <!-- sidebar area start -->
   <div class="sidebar__area responsive_navbar">
     <div class="sidebar__wrapper">
-      <!-- <div class="sidebar__close">
-
-      </div> -->
-      <!-- <div class="sidebar__content">
-        <div class="mobile-menu fix">
-          <ul>
-            <li >
-              <a routerLink="/">
-                {{"navbar_home_text" | translate}}
-                </a>
-
-            </li>
-            <li >
-              <a routerLink="/about-us">
-                {{"navbar_about_text" | translate}}
-
-                </a>
-
-            </li>
-            <li class="has-dropdown destination_li" (mouseenter)="mouseEnter()">
-              <a routerLink="/destinations">
-                {{"navbar_destination_text" | translate}}
-
-                </a>
-              <ul class="submenu">
-                <li *ngFor="let destination of destinations" (click)="onClickLi()">
-                  <a [routerLink]="['/destination/', destination.id]">{{currentLanguage === 'ar' ? destination.ar_name  :  destination.en_name}}</a>
-                </li>
-
-              </ul>
-            </li>
-
-            <li><a routerLink="contact-us">
-              {{"navbar_contact_text" | translate}}
-
-              </a></li>
-            <li *ngIf="currentLanguage === 'ar'">
-              <a (click)="showcurrentLanguage('en')">
-                English
-              </a>
-            </li>
-            <li *ngIf="currentLanguage === 'en'">
-              <a (click)="showcurrentLanguage('ar')">
-                عربي
-              </a>
-            </li>
-          </ul>
-        </div>
-
-
-      </div> -->
       <div class="sidebar__content">
         <div class="logo mb-20 d-flex justify-content-between">
           <a routerLink="/">
@@ -252,7 +201,7 @@
                 </li>
                 <li (click)="closeNavbar()" *ngIf="currentLanguage === 'en'">
                   <a (click)="showcurrentLanguage('ar')">
-
+                    عربي
                   </a>
                 </li>
               </ul>

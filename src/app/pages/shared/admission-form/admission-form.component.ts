@@ -1,12 +1,14 @@
-import { Component, OnInit, Renderer2 } from '@angular/core';
+  import { Component, OnInit, Renderer2 } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { AuthenticationService } from 'src/app/services/authentication.service';
+import { DependentFormService } from 'src/app/services/dependent-form.service';
 import { HomeService } from 'src/app/services/home.service';
 import { StudyService } from 'src/app/services/study.service';
+import { UserService } from 'src/app/services/user.service';
 import { environment } from 'src/environments/environment';
 
 @Component({
@@ -26,16 +28,18 @@ export class AdmissionFormComponent implements OnInit {
   universities: any[] = [];
   majors: any[] = [];
   departments: any[] = [];
-  universityOnchangeId!:number;
-  changeUniversities: any[] = [];
-  changeFaculty: any[] = [];
-  universityData: any;
+  changeUniversities: any;
+  changeFaculty: any;
+  changeMajor: any;
+  changeDepartment: any;
+  universityOnchangeId:any;
   facultyDatas: any[] = [];
   conditions: any[] = [];
   userArray: any;
   isLogined!:boolean;
   userPersonalInfo: any;
   userAcademicInfo: any;
+  academicCondition!:boolean;
   universityImage:string = `${environment.imageUrl}universities/`;
   facultyImage:string = `${environment.imageUrl}faculties/`;
   destinationImage:string = `${environment.imageUrl}destinations/`;
@@ -44,7 +48,8 @@ export class AdmissionFormComponent implements OnInit {
   actionLoading!:boolean;
   constructor(
     private _StudyService:StudyService,
-    private _HomeService:HomeService,
+    private _UserService:UserService,
+    private _DependentFormService:DependentFormService,
     private _Router: Router,
     private _TranslateService:TranslateService,
     private _AuthenticationService:AuthenticationService,
@@ -58,7 +63,7 @@ export class AdmissionFormComponent implements OnInit {
     this.authenticationData()
     this.showPersonalInformation();
     this.showAcademicInformation();
-    this.showHomeData();
+    this.showDestination();
   }
 
   navigateToAcademic(){
@@ -107,7 +112,7 @@ export class AdmissionFormComponent implements OnInit {
   showPersonalInformation() {
     if (localStorage.getItem('currentUserToken') !== null) {
 
-    this._AuthenticationService
+    this._UserService
       .getPersonalInformation(this.userArray.id)
       .subscribe((response) => {
         console.log(response);
@@ -118,7 +123,7 @@ export class AdmissionFormComponent implements OnInit {
   showAcademicInformation() {
     if (localStorage.getItem('currentUserToken') !== null) {
 
-    this._AuthenticationService
+    this._UserService
       .getAcademicInformation(this.userArray.id)
       .subscribe((response) => {
         console.log(response);
@@ -137,9 +142,11 @@ export class AdmissionFormComponent implements OnInit {
     )
   }
   authenticationData(){
+
       this._AuthenticationService.currentUserData.subscribe(() => {
         if (this._AuthenticationService.currentUserData.getValue() == null) {
           this.isLogined = false;
+
         } else {
           this.userArray = JSON.parse(
             localStorage.getItem('currentUserArray') || '{}'
@@ -150,34 +157,27 @@ export class AdmissionFormComponent implements OnInit {
       });
 
   }
-  showHomeData() {
-    this._HomeService.getHomeData().subscribe((response) => {
-      this.destinations = response.destinations;
-      this.universities = response.university;
-      this.faculties = response.faculty;
-      this.facultyUniversity = response.facultyUniversity;
-    });
-  }
+
   admissionFormPage: FormGroup = new FormGroup({
     'admission_destination_id': new FormControl('', Validators.required),
     'admission_university_id': new FormControl('', Validators.required),
     'admission_fac_uni_id': new FormControl('', Validators.required),
     'admission_fac_uni_major_id': new FormControl(''),
     'admission_department_id': new FormControl('', Validators.required),
-    'user_id': new FormControl('')
+    'user_id': new FormControl(''),
+    // 'universitySlug' : new FormControl('')
   })
   onSubmitAdmissionForm(admissionFormPage: FormGroup){
     this.actionLoading = true
-    this._AuthenticationService.submitAdmissionInformation(
+    this._UserService.submitAdmissionInformation(
       admissionFormPage.value
     ).subscribe(
       ( response) => {
-        console.log(response);
         this.actionLoading = true
         if(response.success === 'You registered before and we will call you soon'){
           if(this.currentLanguage === 'en'){
             this._ToastrService.warning(`${response.success}`,`Attention` , {
-              timeOut: 4000 , positionClass: 'toast-bottom-left'
+              timeOut: 4000 , positionClass: 'toast-bottom-center'
 
             })
 
@@ -185,7 +185,7 @@ export class AdmissionFormComponent implements OnInit {
             this.closeAdmissionForm();
           }else if(this.currentLanguage === 'ar'){
             this._ToastrService.warning(`${response.ar_success}`,`تنبيه`, {
-              timeOut: 4000 , positionClass: 'toast-bottom-left'
+              timeOut: 4000 , positionClass: 'toast-bottom-center'
 
             })
             this.actionLoading = false;
@@ -195,7 +195,7 @@ export class AdmissionFormComponent implements OnInit {
             (language) => {
               if(language.lang === 'en'){
                 this._ToastrService.warning(`${response.success}`,`success` , {
-                  timeOut: 4000 , positionClass: 'toast-bottom-left'
+                  timeOut: 4000 , positionClass: 'toast-bottom-center'
 
                 })
 
@@ -203,7 +203,7 @@ export class AdmissionFormComponent implements OnInit {
                 this.closeAdmissionForm();
               }else if(language.lang === 'ar'){
                 this._ToastrService.warning(`${response.ar_success}`,`تسجيل صحيح` , {
-                  timeOut: 4000 , positionClass: 'toast-bottom-left'
+                  timeOut: 4000 , positionClass: 'toast-bottom-center'
 
                 })
                 this.actionLoading = false;
@@ -214,7 +214,7 @@ export class AdmissionFormComponent implements OnInit {
         }else{
           if(this.currentLanguage === 'en'){
             this._ToastrService.success(`${response.success}`,`success` , {
-              timeOut: 4000 , positionClass: 'toast-bottom-left'
+              timeOut: 4000 , positionClass: 'toast-bottom-center'
 
             })
 
@@ -222,7 +222,7 @@ export class AdmissionFormComponent implements OnInit {
             this.closeAdmissionForm();
           }else if(this.currentLanguage === 'ar'){
             this._ToastrService.success(`${response.ar_success}`,`تسجيل صحيح` , {
-              timeOut: 4000 , positionClass: 'toast-bottom-left'
+              timeOut: 4000 , positionClass: 'toast-bottom-center'
 
             })
             this.actionLoading = false;
@@ -232,7 +232,7 @@ export class AdmissionFormComponent implements OnInit {
             (language) => {
               if(language.lang === 'en'){
                 this._ToastrService.success(`${response.success}`,`success` , {
-                  timeOut: 4000 , positionClass: 'toast-bottom-left'
+                  timeOut: 4000 , positionClass: 'toast-bottom-center'
 
                 })
 
@@ -240,7 +240,7 @@ export class AdmissionFormComponent implements OnInit {
                 this.closeAdmissionForm();
               }else if(language.lang === 'ar'){
                 this._ToastrService.success(`${response.ar_success}`,`تسجيل صحيح` , {
-                  timeOut: 4000 , positionClass: 'toast-bottom-left'
+                  timeOut: 4000 , positionClass: 'toast-bottom-center'
 
                 })
                 this.actionLoading = false;
@@ -250,53 +250,97 @@ export class AdmissionFormComponent implements OnInit {
           )
 
         }
+      }, error => {
+        if(error.status === 500) {
+          if(this.currentLanguage === 'en'){
+
+            this._ToastrService.error(`${error.error.error}`,`Wrong` , {
+              timeOut: 4000 , positionClass: 'toast-bottom-center'
+
+            })
+          }else if(this.currentLanguage === 'ar'){
+            this._ToastrService.error(`${error.error.ar_error}`,`خطأ` , {
+              timeOut: 4000 , positionClass: 'toast-bottom-center'
+
+            })
+          }
+          this._TranslateService.onLangChange.subscribe(
+            (language) => {
+              if(language.lang === 'en'){
+
+                this._ToastrService.error(`${error.error.error}`,`Wrong` , {
+                  timeOut: 4000 , positionClass: 'toast-bottom-center'
+
+                })
+              }else if(language.lang === 'ar'){
+                this._ToastrService.error(`${error.error.ar_error}`,`خطأ` , {
+                  timeOut: 4000 , positionClass: 'toast-bottom-center'
+
+                })
+              }
+            }
+          )
+
+        }
+        this.actionLoading = false
+
       }
     )
   }
   showDestination() {
-    this._HomeService.getHomeData().subscribe((response) => {
+    this._StudyService.getDestinations().subscribe((response) => {
       this.destinations = response.destinations;
-      this.universities = response.university;
-      this.faculties = response.faculty;
-      this.facultyUniversity = response.facultyUniversity;
     });
   }
   onChangeDestination(event: any) {
-    const universitiesArray = this.universities.filter((universities: any) => {
-      console.log(universities);
-      return universities.destination_id == event.target.value;
-    });
-    this.changeUniversities = universitiesArray;
+    this.actionLoading = true;
+    this._DependentFormService.getUniversities(event.target.value , 'en').subscribe(
+      (response) => {
+        this.changeUniversities = response.universities[0];
+        this.actionLoading = false;
+      }
+    )
+    // this.admissionFormPage.value.admission_destination_id =
     this.universityChoice = true;
   }
   onChangeUniversity(event: any) {
-    const facultyArray = this.facultyUniversity.filter((faculty: any) => {
-      return faculty.university_id == event.target.value ;
-    });
-    this.universityOnchangeId = event.target.value
-    this.changeFaculty = facultyArray;
-    this.facultyChoice = true;
-  }
-  onChangeFaculty(event: any) {
-    const majorArray = this.facultyUniversity.filter((major: any) => {
-      return major.faculty_id == event.target.value && major.university_id == this.universityOnchangeId;
-    });
-    this._StudyService.getFacultyData(majorArray[0].faculty_id , majorArray[0].university_id).subscribe(
+    console.log(event);
+    this.actionLoading = true;
+
+    this._DependentFormService.getFaculty(event.target.value, 'en').subscribe(
       (response) => {
-        this.majors = response.facultyUniversity.majors
-        this.majorId = response.facultyUniversity.majors[0].pivot?.departments[0].pivot?.faculty_major_university_id;
+        console.log(response);
+        this.changeFaculty = response.faculties[0];
+        this.actionLoading = false;
 
       }
     )
+    this.universityOnchangeId = event.target.value
+    this.facultyChoice = true;
+  }
+  onChangeFaculty(event: any) {
+
+    this.actionLoading = true;
+    this._DependentFormService.getMajors(this.universityOnchangeId, event.target.value , 'en').subscribe(
+      (response) => {
+        this.changeMajor = response.majors[0]
+        this.actionLoading = false;
+
+      }
+    )
+
     this.majorChoice = true;
   }
   onMajorSaerch(event: any){
-    const departmentsArray = this.majors.filter(
+    this.actionLoading = true;
+
+    this._DependentFormService.getDepartments(event.target.value , 'en').subscribe(
       (response) => {
-        return response.id == event.target.value;
+        this.changeDepartment = response.departments[0]
+        this.actionLoading = false;
+        this.departmentChoice = true;
       }
+
     )
-    this.departments = departmentsArray[0].pivot?.departments;
-      this.departmentChoice = true;
   }
 }

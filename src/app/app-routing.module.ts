@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { AboutComponent } from './pages/content/about/about.component';
+import { AboutComponent } from './pages/content/about-us/about-us.component';
 import { AcademicInformationComponent } from './pages/content/auth/academic-information/academic-information.component';
 import { LoginComponent } from './pages/content/auth/login/login.component';
 import { MovementInformationComponent } from './pages/content/auth/movement-information/movement-information.component';
@@ -8,6 +8,7 @@ import { PersonalInformationComponent } from './pages/content/auth/personal-info
 import { RegisterComponent } from './pages/content/auth/register/register.component';
 import { BlogDetailsComponent } from './pages/content/blog-details/blog-details.component';
 import { ContactUsComponent } from './pages/content/contact-us/contact-us.component';
+import { DepartmentComponent } from './pages/content/department/department.component';
 import { DestinationComponent } from './pages/content/destination/destination.component';
 import { DestinationsComponent } from './pages/content/destinations/destinations.component';
 import { FacultyComponent } from './pages/content/faculty/faculty.component';
@@ -32,15 +33,16 @@ const routes: Routes = [
   { path: 'studyByFacultyUniversity/:special_id/:faculty_id', component: StudyByFacultyUniversityComponent },
   { path: 'destinations', component: DestinationsComponent },
   { path: 'destination/:slug', component: DestinationComponent },
-  { path: 'university/:id', component: UniversitiesComponent },
+  { path: 'university/:destination_slug/:university_slug', component: UniversitiesComponent},
   { path: 'blog' , component: BlogDetailsComponent },
-  { path: 'faculty/:faculty_id/:university_id', component: FacultyComponent },
+  { path: 'department/:faculty_major_university_id/:department_id' , component:DepartmentComponent },
+  { path: 'faculty/:faculty_slug/:university_slug', component: FacultyComponent },
   { path: '**', component: NotfoundComponent },
 ];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes, {
-    initialNavigation: 'enabled'
+    initialNavigation: 'enabled' , scrollPositionRestoration: 'top'
 })],
   exports: [RouterModule]
 })

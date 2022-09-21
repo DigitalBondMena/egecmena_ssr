@@ -25,7 +25,7 @@ export class DestinationComponent implements OnInit {
     private _ActivatedRoute: ActivatedRoute,
     private _TranslateService:TranslateService,
     private _Title:Title,
-    private _Renderer2:Renderer2 
+    private _Renderer2:Renderer2
   ) { }
 
   ngOnInit(): void {
@@ -35,11 +35,12 @@ export class DestinationComponent implements OnInit {
   showUniversities(){
     this._ActivatedRoute.paramMap.subscribe(
       (params:Params) => {
-        console.log(params['params'].slug);
         let body = document.querySelector('body');
         this._Renderer2.setStyle(body, 'overflow' , 'hidden')
         this.loading = true;
-        this._StudyService.getDestinationDetails(params['params'].slug).subscribe(
+        this._StudyService.getDestinationDetails(params['params'].slug,
+          localStorage.getItem('currentLanguage') || '{}'
+        ).subscribe(
 
           (response) => {
             this.destinationDetail = response.country;
@@ -48,17 +49,6 @@ export class DestinationComponent implements OnInit {
                 return universities.destination_id == response.country?.id;
               }
             )
-            // const destinationDetails = response.destinations.filter(
-            //   (destination: any) => {
-            //     return destination.id == params['params'].slug;
-            //   }
-            // )
-            // const destinationConatiner = response.destinations.filter(
-            //   (destination: any) => {
-            //     return destination.id != params['params'].slug;
-            //   }
-            // )
-            // this.destinationDetail = [0];
             if (this.currentLanguage == 'en') {
               this._Title.setTitle(`${environment.title}${this.destinationDetail?.en_name}`)
             }else if(this.currentLanguage == 'ar'){
@@ -71,7 +61,7 @@ export class DestinationComponent implements OnInit {
                   this._Title.setTitle(`${environment.title}${this.destinationDetail?.en_name}`)
                 }else if(language.lang == 'ar'){
                   this._Title.setTitle(`${environment.title}${this.destinationDetail?.ar_name}`)
-    
+
                 }
               }
             )

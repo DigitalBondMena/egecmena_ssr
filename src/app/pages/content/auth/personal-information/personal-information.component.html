@@ -657,8 +657,8 @@
                       <select [ngModel]="userPersonalInfo?.gender" formControlName="gender" >
                         <option value="" [selected]="currentLanguage === 'ar' ? 'النوع' : 'Gender'">{{ currentLanguage === 'ar' ? 'النوع' : 'Gender' }}</option>
 
-                        <option value="ذكر">Male</option>
-                        <option value="انثي">Female</option>
+                        <option value="ذكر">{{ currentLanguage === 'ar' ? 'ذكر' : 'Male'   }}</option>
+                        <option value="انثي">{{ currentLanguage === 'ar' ? 'انثي' : 'Female'   }}</option>
                       </select>
                       <i class="fas fa-venus-mars"></i>
                     </div>

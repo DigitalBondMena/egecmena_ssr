@@ -28,7 +28,7 @@ export class StudyByFacultyComponent implements OnInit {
     private _ActivatedRoute: ActivatedRoute,
     private _TranslateService:TranslateService,
     private _Title:Title,
-    private _Renderer2:Renderer2 
+    private _Renderer2:Renderer2
 
 
   ) { }
@@ -51,12 +51,23 @@ export class StudyByFacultyComponent implements OnInit {
             console.log(response.faculty);
             this.faculties = response.faculty
             console.log(response.faculty);
+
             if (this.currentLanguage == 'en') {
-              this._Title.setTitle(`${environment.title}${this.university?.en_name}`)
+              this._Title.setTitle(`${environment.title}Faculties`)
             }else if(this.currentLanguage == 'ar'){
-              this._Title.setTitle(`${environment.title} كليات`)
+              this._Title.setTitle(`${environment.title}كليات`)
 
             }
+            this._TranslateService.onLangChange.subscribe(
+              (language) => {
+                if (language.lang == 'en') {
+                  this._Title.setTitle(`${environment.title}Faculties`)
+                }else if(language.lang== 'ar'){
+                  this._Title.setTitle(`${environment.title}كليات`)
+
+                }
+              }
+            )
             this._Renderer2.removeStyle(body, 'overflow')
 
             this.loading = false;

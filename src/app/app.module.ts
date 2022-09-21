@@ -24,12 +24,13 @@ import { CountUpModule } from 'ngx-countup';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from "@angular/common/http";
 import { NotfoundComponent } from './pages/shared/notfound/notfound.component';
-import { AboutComponent } from './pages/content/about/about.component';
+import { AboutComponent } from './pages/content/about-us/about-us.component';
 import { NgxIntlTelInputModule } from 'ngx-intl-tel-input';
 import {TypeaheadModule} from "ngx-bootstrap/typeahead";
 import {PopoverModule} from "ngx-bootstrap/popover";
 import { LoginComponent } from './pages/content/auth/login/login.component';
 import { ContactUsComponent } from './pages/content/contact-us/contact-us.component';
+import { DepartmentComponent } from './pages/content/department/department.component';
 import { RegisterComponent } from './pages/content/auth/register/register.component';
 import { UniversitiesComponent } from './pages/content/universities/universities.component';
 import { DestinationComponent } from './pages/content/destination/destination.component';
@@ -76,7 +77,9 @@ registerLocaleData(en)
     SearchUniversityPipe,
     SearchDestinationPipe,
     InnerPageLoaderComponent,
-    BlogDetailsComponent
+    BlogDetailsComponent,
+    DepartmentComponent,
+    SanitizeHtmlPipe
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'serverApp' }),

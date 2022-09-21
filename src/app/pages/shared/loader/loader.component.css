@@ -1,0 +1,127 @@
+.page-breadcrumb {
+  display: flex;
+  align-items: center;
+}
+
+.page-breadcrumb > li {
+  margin-left: 20px;
+}
+
+.loader_sekelton {
+  position: fixed;
+  z-index: 999999;
+  inset: 0;
+}
+.loader_sekelton .first_section {
+  height: 65vh;
+  background-color: #d9d9d9;
+}
+.loader_sekelton .second_section {
+  height: 35vh;
+  background-color: #fff;
+}
+.loader_sekelton .card {
+  height: 100vh;
+}
+.loader_sekelton .header .img {
+  height: 100vh;
+  width: 100%;
+  background: #d9d9d9;
+  position: relative;
+  overflow: hidden;
+}
+.loader_sekelton .header .details {
+  position: absolute;
+  bottom: 21px;
+}
+.loader_sekelton .header .details .title {
+  margin-left: 20px;
+  display: flex;
+  align-items: center;
+}
+.loader_sekelton .details span {
+  display: block;
+  background: #d9d9d9;
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+}
+.loader_sekelton .details .name {
+  height: 15px;
+  width: 100px;
+}
+.loader_sekelton .details .about {
+  height: 13px;
+  width: 150px;
+}
+.loader_sekelton .card .description {
+  margin: 25px 0;
+  margin-right: 20px;
+}
+.loader_sekelton .description .line.page__title {
+  background: #d9d9d9;
+  border-radius: 10px;
+  height: 13px;
+  width: 250px;
+  margin: 10px 0;
+  overflow: hidden;
+  position: relative;
+}
+.loader_sekelton .description .line.breadcrumb-item {
+  background: #d9d9d9;
+  border-radius: 10px;
+  height: 13px;
+  width: 100px;
+  margin: 10px;
+  overflow: hidden;
+  position: relative;
+}
+.loader_sekelton .description .line-1 {
+  width: 100%;
+}
+.loader_sekelton .header .img::before {
+  position: absolute;
+  content: "";
+  height: 100%;
+  width: 100%;
+  background-image: linear-gradient(to left, #d9d9d9 0%, rgba(0, 0, 0, 0.05) 20%, #d9d9d9 40%, #d9d9d9 100%);
+  background-repeat: no-repeat;
+  background-size: 450px 400px;
+  -webkit-animation: shimmer 1s linear infinite;
+          animation: shimmer 1s linear infinite;
+}
+.loader_sekelton .description .line::before,
+.loader_sekelton .details span::before {
+  position: absolute;
+  content: "";
+  height: 100%;
+  width: 100%;
+  background-image: linear-gradient(to left, #777 0%, rgba(0, 0, 0, 0.05) 20%, #777 40%, #777 100%);
+  background-repeat: no-repeat;
+  background-size: 450px 400px;
+  -webkit-animation: shimmer 1s linear infinite;
+          animation: shimmer 1s linear infinite;
+}
+.loader_sekelton .header .img::before {
+  background-size: 650px 600px;
+}
+.loader_sekelton .details span::before {
+  -webkit-animation-delay: 0.2s;
+          animation-delay: 0.2s;
+}
+@-webkit-keyframes shimmer {
+  100% {
+    background-position: 450px 0;
+  }
+  0% {
+    background-position: -450px 0;
+  }
+}
+@keyframes shimmer {
+  100% {
+    background-position: 450px 0;
+  }
+  0% {
+    background-position: -450px 0;
+  }
+}/*# sourceMappingURL=loader.component.css.map */
