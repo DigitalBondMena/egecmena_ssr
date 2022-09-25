@@ -48,6 +48,7 @@ import { StudyByFacultyComponent } from './pages/content/study-by-faculty/study-
 import { AcademicInformationComponent } from './pages/content/auth/academic-information/academic-information.component';
 import { PersonalInformationComponent } from './pages/content/auth/personal-information/personal-information.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { SanitizeHtmlPipe } from './pipes/sanitize-html.pipe';
 registerLocaleData(ar)
 registerLocaleData(en)
 @NgModule({
